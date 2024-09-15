@@ -1,0 +1,38 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('product_attributes', function (Blueprint $table) {
+            $table->id();
+
+            $table->unsignedBigInteger('product_id')->index();
+            $table->foreign('product_id')->references('id')->on('products')->onUpdate('cascade')->onDelete('cascade');
+
+            $table->string('key');
+            $table->mediumText('value');
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->index(['product_id', 'key']);
+            $table->unique(['product_id', 'key']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('product_attributes');
+    }
+};

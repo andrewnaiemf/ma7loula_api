@@ -1,0 +1,94 @@
+version: '3'
+services:
+    app:
+        build:
+            context: .
+            dockerfile: docker/production/php/Dockerfile
+        image: ma7lola:production-latest
+        container_name: app
+        restart: unless-stopped
+        volumes:
+            - ma7lola-storage:/var/www/html/storage
+        networks:
+            - ma7lola
+        depends_on:
+            - mysql
+
+    workers:
+        image: ma7lola:production-latest
+        container_name: workers
+        restart: unless-stopped
+        volumes:
+            - ma7lola-storage:/var/www/html/storage
+        networks:
+            - ma7lola
+        depends_on:
+            - app
+        command: /usr/bin/supervisord -c /etc/supervisor/conf.d/laravel-worker.conf
+
+    nginx:
+        build:
+            context: .
+            dockerfile: docker/production/nginx/Dockerfile
+        restart: unless-stopped
+        container_name: nginx
+        volumes:
+            - ma7lola-storage:/var/www/html/storage
+        ports:
+            - "8081:80"
+        networks:
+            - ma7lola
+        depends_on:
+            - mysql
+            - app
+
+    mysql:
+        image: 'mysql:8.0'
+        restart: unless-stopped
+        environment:
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ROOT_HOST: "%"
+            MYSQL_DATABASE: '${DB_DATABASE}'
+            MYSQL_USER: '${DB_USERNAME}'
+            MYSQL_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ALLOW_EMPTY_PASSWORD: 1
+        volumes:
+            - 'ma7lola-mysql:/var/lib/mysql'
+        networks:
+            - ma7lola
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
+            retries: 3
+            timeout: 5s
+        command: --skip-host-cache --skip-name-resolve
+      
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin:5.2.1
+        restart: unless-stopped
+        links:
+            - mysql:mysql
+        ports:
+            - 8080:80
+        environment:
+            MYSQL_USERNAME: "${DB_USERNAME}"
+            MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+            PMA_HOST: mysql
+        networks:
+            - ma7lola
+        depends_on:
+            - mysql
+
+    redis:
+        image: redis:7.2.4
+        restart: unless-stopped
+        networks:
+            - ma7lola
+
+networks:
+    ma7lola:
+        driver: bridge
+volumes:
+    ma7lola-mysql:
+        driver: local
+    ma7lola-storage:
+        driver: local

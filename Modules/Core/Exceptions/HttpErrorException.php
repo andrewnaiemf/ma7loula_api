@@ -29,7 +29,7 @@ class HttpErrorException extends Exception
     {
         return response()->json([
             'message' => $this->message,
-            'errors' => []
+            'errors' => (object) $this->data
         ], $this->code);
     }
 }

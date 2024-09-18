@@ -6,10 +6,10 @@ use Illuminate\Http\JsonResponse;
 
 class Controller
 {
-    public function successResponse(string $message, array $data = []): JsonResponse{
+    public function successResponse(array $data = [], string $message = null): JsonResponse{
         return response()->json([
             'message' => $message,
-            'data' => $data
+            'data' => (object) $data
         ]);
     }
 }

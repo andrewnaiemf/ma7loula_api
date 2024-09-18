@@ -12,7 +12,7 @@ class ModulesServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->register(\Modules\Core\Providers\CoreServiceProvider::class);
-        $this->app->register(\Modules\Users\Providers\UsersServiceProvider::class);
+        $this->app->register(\Modules\Client\Providers\ClientServiceProvider::class);
     }
 
     /**

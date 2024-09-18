@@ -12,10 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('phone')->after('email')->index();
-            $table->softDeletes();
-            $table->unique(['email', 'deleted_at']);
-            $table->unique(['phone', 'deleted_at']);
+            $table->unsignedBigInteger('default_address_id')->after('password')->nullable()->default(null);
+            $table->foreign('default_address_id')->references('id')->on('addresses')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 
@@ -25,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['phone', 'deleted_at']);
+            $table->dropColumn(['default_address_id']);
         });
     }
 };

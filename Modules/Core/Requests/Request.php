@@ -2,7 +2,9 @@
 
 namespace Modules\Core\Requests;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Modules\Core\Exceptions\ValidationException;
 
 class Request extends FormRequest
 {
@@ -25,5 +27,4 @@ class Request extends FormRequest
             //
         ];
     }
-    
 }

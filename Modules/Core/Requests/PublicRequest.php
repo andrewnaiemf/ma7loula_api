@@ -2,9 +2,7 @@
 
 namespace Modules\Core\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
-
-class PublicRequest extends FormRequest
+class PublicRequest extends Request
 {
     /**
         * Determine if the user is authorized to make this request.

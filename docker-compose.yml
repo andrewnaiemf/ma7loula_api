@@ -6,6 +6,9 @@ services:
             dockerfile: docker/dev/php/Dockerfile
         image: ma7lola:dev-latest
         restart: unless-stopped
+        environment:
+            - UID='${UID}'
+            - GID='${GID}'
         volumes:
             - ./:/var/www/html
         networks:

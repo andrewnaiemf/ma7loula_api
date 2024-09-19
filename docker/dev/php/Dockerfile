@@ -1,5 +1,8 @@
 FROM php:8.2-fpm
 
+ARG UID
+ARG GID
+
 WORKDIR /var/www/html
 
 RUN apt-get update && apt-get install -y \
@@ -45,7 +48,7 @@ COPY ./docker/dev/php/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 # COPY . .
 
-RUN groupadd -g 1000 ma7lola && useradd -u 1000 -g 1000 ma7lola --password password
+RUN groupadd -g ${GID} ma7lola && useradd -u ${UID} -g ${GID} ma7lola --password password
 
 RUN mkdir /home/ma7lola
 

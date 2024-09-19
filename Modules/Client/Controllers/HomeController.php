@@ -1,9 +1,8 @@
 <?php
 
-namespace Modules\Client\Controllers\Home;
+namespace Modules\Client\Controllers;
 
 use Modules\Core\Controllers\Controller;
-use Modules\Core\Services\Auth\AuthService;
 
 class HomeController extends Controller
 {

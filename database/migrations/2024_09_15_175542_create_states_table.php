@@ -11,15 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('areas', function (Blueprint $table) {
+        Schema::create('states', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->unsignedBigInteger('city_id');
-            $table->foreign('city_id')->references('id')->on('cities')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedBigInteger('government_id');
-            $table->foreign('government_id')->references('id')->on('governments')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->unique(['name', 'deleted_at']);
         });
     }
 
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('areas');
+        Schema::dropIfExists('states');
     }
 };

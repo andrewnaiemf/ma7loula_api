@@ -1,12 +1,11 @@
 <?php
  
- namespace Modules\Client\Resources\Auth;
+ namespace Modules\Client\Resources;
  
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Modules\Core\Interfaces\Auth\UserResource;
 
-class ClientAuthResource extends JsonResource implements UserResource
+class ClientAuthResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

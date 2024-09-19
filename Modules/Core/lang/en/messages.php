@@ -2,6 +2,7 @@
 
 return [
     'auth.otp_sent' => 'OTP has been sent to your phone number',
+    'auth.otp_wrong' =>  'Wrong OTP code',
     'auth.throttle' => 'Please try again after :time',
     'auth.register_success' => 'You have been registered successfully!',
     'auth.login_success' => 'Logged in successfully!',

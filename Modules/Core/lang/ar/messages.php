@@ -2,6 +2,7 @@
 
 return [
     'auth.otp_sent' =>  'تم إرسال رمز التأكيد في رساله نصية إلي رقمك',
+    'auth.otp_wrong' =>  'رمز التأكيد خطأ',
     'auth.throttle' => 'برجاء إعادة المحاولة بعد :time',
     'auth.register_success' => 'تم تسجيل حسابك بنجاح',
     'auth.login_success' => 'تم تسجيل الدخول بنجاح',

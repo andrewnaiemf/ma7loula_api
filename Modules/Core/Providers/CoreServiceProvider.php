@@ -39,7 +39,7 @@ class CoreServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('otp', function (Request $request) {
-            return Limit::perMinute(1, 1)->by($request->ip())->response(function (Request $request, array $headers) {
+            return Limit::perMinute(1, 1)->by($request->input('phone')??$request->ip())->response(function (Request $request, array $headers) {
                 $time = Carbon::now()->addSeconds($headers['Retry-After']??'5');
                 throw new HttpErrorException(trans('Core::messages.auth.throttle', ['time' => $time->diffForHumans()]));
             });;

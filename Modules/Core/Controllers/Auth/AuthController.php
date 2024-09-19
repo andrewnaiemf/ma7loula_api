@@ -9,7 +9,10 @@ use Modules\Core\Requests\Auth\RegisterRequest;
 use Modules\Core\Requests\Auth\ResetPasswordOTPRequest;
 use Modules\Core\Requests\Auth\ResetPasswordRequest;
 use Modules\Core\Requests\Auth\SendOTPRequest;
-use Modules\Core\Services\Auth\AuthService;
+use Modules\Core\Requests\Auth\UpdatePasswordRequest;
+use Modules\Core\Requests\Auth\UpdatePhoneRequest;
+use Modules\Core\Requests\Auth\UpdateProfileRequest;
+use Modules\Core\Services\AuthService;
 
 class AuthController extends Controller
 {
@@ -19,8 +22,9 @@ class AuthController extends Controller
     {
         $otp = $this->authService->sendOTP($request->input('phone'));
         return $this->successResponse([
-            'otp' => $otp
-        ], trans('Core::messages.auth.otp_sent'));
+            'success' => true,
+            'otp_for_testing' => config('app.debug') ? $otp : null
+        ]);
     }
 
     public function register(RegisterRequest $request)
@@ -28,7 +32,7 @@ class AuthController extends Controller
         $user = $this->authService->register($request);
         return $this->successResponse([
             'user' => $user
-        ], trans('Core::messages.auth.register_success'));
+        ]);
     }
 
     public function login(LoginRequest $request)
@@ -36,22 +40,36 @@ class AuthController extends Controller
         $user = $this->authService->login($request);
         return $this->successResponse([
             'user' => $user
-        ], trans('Core::messages.auth.login_success'));
+        ]);
     }
 
-    public function resetPasswordOTP(ResetPasswordOTPRequest $request)
+    public function updateProfile(UpdateProfileRequest $request)
     {
-        $otp = $this->authService->sendOTP($request->input('phone'));
         return $this->successResponse([
-            'otp' => $otp
-        ], trans('Core::messages.auth.otp_sent'));
+            'user' => $this->authService->updateProfile($request)
+        ]);
+    }
+
+    public function updatePhone(UpdatePhoneRequest $request)
+    {
+        return $this->successResponse([
+            'user' => $this->authService->updatePhone($request)
+        ]);
     }
 
     public function resetPassword(ResetPasswordRequest $request)
     {
-        $user = $this->authService->resetPassword($request);
         return $this->successResponse([
-            'user' => $user
-        ], trans('Core::messages.auth.password_success_reset'));
+            'user' => $this->authService->resetPassword($request)
+        ]);
     }
+
+    public function updatePassword(UpdatePasswordRequest $request)
+    {
+        return $this->successResponse([
+            'user' => $this->authService->updatePassword($request)
+        ]);
+    }
+
+    
 }

@@ -21,17 +21,15 @@ return new class extends Migration
             $table->mediumText('details')->nullable();
 
             $table->unsignedBigInteger('user_id')->index();
-            $table->unsignedBigInteger('area_id');
+            $table->unsignedBigInteger('state_id');
             $table->unsignedBigInteger('city_id');
-            $table->unsignedBigInteger('government_id');
             $table->timestamps();
             $table->softDeletes();
 
 
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('area_id')->references('id')->on('areas')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('city_id')->references('id')->on('cities')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('government_id')->references('id')->on('governments')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('state_id')->references('id')->on('states')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

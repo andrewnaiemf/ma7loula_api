@@ -4,11 +4,11 @@ services:
         build:
             context: .
             dockerfile: docker/dev/php/Dockerfile
+            args:
+                - UID='${UID}'
+                - GID='${GID}'
         image: ma7lola:dev-latest
         restart: unless-stopped
-        environment:
-            - UID='${UID}'
-            - GID='${GID}'
         volumes:
             - ./:/var/www/html
         networks:

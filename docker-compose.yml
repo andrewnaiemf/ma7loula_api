@@ -5,8 +5,8 @@ services:
             context: .
             dockerfile: docker/dev/php/Dockerfile
             args:
-                - UID='${UID}'
-                - GID='${GID}'
+                - UID=${UID}
+                - GID=${GID}
         image: ma7lola:dev-latest
         restart: unless-stopped
         volumes:

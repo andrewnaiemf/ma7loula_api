@@ -58,21 +58,21 @@ services:
             timeout: 5s
         command: --skip-host-cache --skip-name-resolve
       
-    phpmyadmin:
-        image: phpmyadmin/phpmyadmin:5.2.1
-        restart: unless-stopped
-        links:
-            - mysql:mysql
-        ports:
-            - 8080:80
-        environment:
-            MYSQL_USERNAME: "${DB_USERNAME}"
-            MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
-            PMA_HOST: mysql
-        networks:
-            - ma7lola
-        depends_on:
-            - mysql
+    # phpmyadmin:
+    #     image: phpmyadmin/phpmyadmin:5.2.1
+    #     restart: unless-stopped
+    #     links:
+    #         - mysql:mysql
+    #     ports:
+    #         - 8080:80
+    #     environment:
+    #         MYSQL_USERNAME: "${DB_USERNAME}"
+    #         MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+    #         PMA_HOST: mysql
+    #     networks:
+    #         - ma7lola
+    #     depends_on:
+    #         - mysql
 
     redis:
         image: redis:7.2.4

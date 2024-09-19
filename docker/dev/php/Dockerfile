@@ -48,7 +48,7 @@ COPY ./docker/dev/php/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 # COPY . .
 
-RUN groupadd -g $GID ma7lola && useradd -u $UID -g $GID ma7lola --password password
+RUN groupadd -g ${GID} ma7lola && useradd -u ${UID} -g ${GID} ma7lola --password password
 
 RUN mkdir /home/ma7lola
 

@@ -1,3 +1,4 @@
+version: '3'
 services:
     app:
         build:
@@ -41,7 +42,7 @@ services:
             - app
 
     mysql:
-        image: mysql
+        image: 'mysql:8.0'
         restart: unless-stopped
         environment:
             MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
@@ -61,7 +62,7 @@ services:
         command: --skip-host-cache --skip-name-resolve
       
     phpmyadmin:
-        image: phpmyadmin/phpmyadmin
+        image: phpmyadmin/phpmyadmin:5.2.1
         restart: unless-stopped
         links:
             - mysql:mysql

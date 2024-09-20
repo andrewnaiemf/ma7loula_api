@@ -41,7 +41,7 @@ services:
             - app
 
     mysql:
-        image: 'mysql:8.0'
+        image: mysql/mysql-server:8.0.23
         restart: unless-stopped
         environment:
             MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'

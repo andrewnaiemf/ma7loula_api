@@ -63,6 +63,7 @@ services:
       
     phpmyadmin:
         image: phpmyadmin/phpmyadmin:5.2.1
+        platform: ${platform-linux/arm64/v8}
         restart: unless-stopped
         links:
             - mysql:mysql

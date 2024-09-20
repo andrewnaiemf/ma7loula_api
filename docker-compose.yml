@@ -62,8 +62,7 @@ services:
         command: --skip-host-cache --skip-name-resolve
       
     phpmyadmin:
-        image: phpmyadmin/phpmyadmin
-        platform: ${platform-linux/arm64/v8}
+        image: phpmyadmin/phpmyadmin:5.2.1
         restart: unless-stopped
         links:
             - mysql:mysql

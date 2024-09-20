@@ -41,7 +41,7 @@ services:
             - app
 
     mysql:
-        image: mysql/mysql-server:8.0.23
+        image: mysql
         restart: unless-stopped
         environment:
             MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
@@ -61,7 +61,7 @@ services:
         command: --skip-host-cache --skip-name-resolve
       
     phpmyadmin:
-        image: phpmyadmin/phpmyadmin:5.0
+        image: phpmyadmin/phpmyadmin
         restart: unless-stopped
         links:
             - mysql:mysql

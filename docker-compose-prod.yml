@@ -13,6 +13,7 @@ services:
             - ma7lola
         depends_on:
             - mysql
+        command: /usr/bin/supervisord -c /etc/supervisor/conf.d/php-fpm.conf
 
     workers:
         image: ma7lola:production-latest

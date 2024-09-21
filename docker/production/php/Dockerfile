@@ -56,5 +56,3 @@ USER ma7lola
 RUN composer install --optimize-autoloader --no-dev
 
 EXPOSE 9000
-
-ENTRYPOINT ["/var/www/html/run.sh"]

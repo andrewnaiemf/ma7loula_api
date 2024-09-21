@@ -19,6 +19,7 @@ use Modules\Core\Requests\Auth\UpdatePasswordRequest;
 use Modules\Core\Requests\Auth\UpdatePhoneRequest;
 use Modules\Core\Requests\Auth\UpdateProfileRequest;
 use Modules\Core\Requests\Auth\UpdateRequest;
+use Modules\Core\Requests\Auth\VerifyOTPRequest;
 use Throwable;
 
 class AuthService

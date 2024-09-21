@@ -19,7 +19,11 @@ class ValidateOTPRequest extends PublicRequest
     {
         if ($this->input('phone')) {
             if (!Cache::has('otp_for_' . $this->input('phone')) || Cache::get('otp_for_' . $this->input('phone')) !=  $this->input('otp')) {
-                throw new HttpErrorException(trans('Core::messages.auth.otp_wrong'), [], 422);
+                throw new HttpErrorException(trans('Core::messages.auth.otp_wrong'), [
+                    'otp' => [
+                        trans('Core::messages.auth.otp_wrong')
+                    ]
+                ], 422);
             }
         }
     }

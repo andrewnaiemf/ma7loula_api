@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class HttpErrorException extends Exception
 {
 
-    public function __construct(string $message, protected array $data = [], $code = 400)
+    public function __construct(string $message, protected array $errors = [], $code = 400)
     {
         $this->message = $message;
         $this->code = $code;
@@ -29,7 +29,7 @@ class HttpErrorException extends Exception
     {
         return response()->json([
             'message' => $this->message,
-            'errors' => (object) $this->data
+            'errors' => (object) $this->errors
         ], $this->code);
     }
 }

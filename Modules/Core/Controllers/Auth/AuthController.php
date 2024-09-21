@@ -12,6 +12,7 @@ use Modules\Core\Requests\Auth\SendOTPRequest;
 use Modules\Core\Requests\Auth\UpdatePasswordRequest;
 use Modules\Core\Requests\Auth\UpdatePhoneRequest;
 use Modules\Core\Requests\Auth\UpdateProfileRequest;
+use Modules\Core\Requests\Auth\VerifyOTPRequest;
 use Modules\Core\Services\AuthService;
 
 class AuthController extends Controller
@@ -26,6 +27,14 @@ class AuthController extends Controller
             'otp_for_testing' => config('app.debug') ? $otp : null
         ]);
     }
+
+    public function verifyOTP(VerifyOTPRequest $request)
+    {
+        return $this->successResponse([
+            'success' => true
+        ]);
+    }
+
 
     public function register(RegisterRequest $request)
     {

@@ -10,10 +10,14 @@ class Address extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['name', 'lat', 'lon', 'user_id', 'details', 'city_id', 'state_id'];
+    protected $fillable = ['name', 'lat', 'lon', 'user_id', 'client_id', 'details', 'city_id', 'state_id'];
 
     public function user(){
         return $this->belongsTo(User::class);
+    }
+
+    public function client(){
+        return $this->belongsTo(Client::class);
     }
 
     public function city(){
@@ -25,6 +29,6 @@ class Address extends Model
     }
 
     public function getIsDefaultAttribute(){
-        return $this->user->client->default_address_id == $this->id;
+        return $this->client->default_address_id == $this->id;
     }
 }

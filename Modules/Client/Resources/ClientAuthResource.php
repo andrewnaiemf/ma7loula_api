@@ -4,6 +4,7 @@
  
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Modules\Core\Resources\CarResource;
 
 class ClientAuthResource extends JsonResource
 {

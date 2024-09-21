@@ -25,6 +25,9 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1/client')->group(functi
 
         Route::controller(CarController::class)->prefix("car")->group(function(){
             Route::post('add', 'addCar');
+            Route::get('list', 'listCars');
+            Route::delete('delete', 'deleteCar');
+            Route::post('set-default', 'setDefault');
         });
 
 

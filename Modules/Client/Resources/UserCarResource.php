@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Modules\Core\Resources\CarResource;
 
-class ClientCarResource extends JsonResource
+class UserCarResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,6 +17,7 @@ class ClientCarResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'is_default' => $this->is_default,
             'car' => new CarResource($this->car)
         ];
     }

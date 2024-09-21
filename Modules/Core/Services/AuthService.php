@@ -82,7 +82,7 @@ class AuthService
             'client' => 'client'
         ];
 
-        $role = $appToRole[app()->header('app')];
+        $role = $appToRole[request()->header('app')];
 
         if (
             Auth::attempt([

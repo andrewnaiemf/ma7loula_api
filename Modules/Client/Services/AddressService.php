@@ -34,13 +34,14 @@ class AddressService
 
         $data = array_merge($data, [
             'user_id' => $this->user->id,
+            'client_id' => $this->user->client->id
         ]);
 
         if (!$address) {
             $address = Address::create($data);
         }
 
-        if ($request->input("is_default") || $this->user->default_address_id == null) {
+        if ($request->input("is_default") || $this->user->defaultAddress == null) {
             $this->user->client->update([
                 'default_address_id' => $address->id
             ]);
@@ -51,7 +52,7 @@ class AddressService
 
     public function list(Request $request)
     {
-        $addresses = Address::where('user_id', $this->user->id)->orderBy('id', 'desc')->get();
+        $addresses = Address::with(['city', 'state', 'client'])->where('user_id', $this->user->id)->orderBy('id', 'desc')->get()->sortByDesc('is_default');
         return AddressResource::collection($addresses);
     }
 

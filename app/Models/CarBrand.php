@@ -9,4 +9,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class CarBrand extends Model
 {
     use HasFactory, SoftDeletes;
+
+    public function model(){
+        return $this->hasOne(CarModel::class, 'car_brand_id', 'id');
+    }
 }

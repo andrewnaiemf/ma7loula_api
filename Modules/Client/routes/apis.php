@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Client\Controllers\AddressController;
+use Modules\Client\Controllers\CarController;
 use Modules\Client\Controllers\HomeController;
 use Modules\Core\Middleware\ValidateHeaders;
 
@@ -20,6 +21,10 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1/client')->group(functi
             Route::put('update', 'update');
             Route::delete('delete', 'delete');
             Route::post('set-default', 'setDefault');
+        });
+
+        Route::controller(CarController::class)->prefix("car")->group(function(){
+            Route::post('add', 'addCar');
         });
 
 

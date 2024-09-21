@@ -1,0 +1,47 @@
+<?php
+
+namespace Modules\Core\Services;
+
+use App\Models\Car;
+use App\Models\CarBrand;
+use App\Models\CarModel;
+use Modules\Core\Requests\Car\ListCarsRequest;
+use Modules\Core\Requests\Car\ListModelsRequest;
+use Modules\Core\Resources\CarBrandResource;
+use Modules\Core\Resources\CarModelResource;
+use Modules\Core\Resources\CarResource;
+
+class CarService
+{
+    public function listBrands()
+    {
+        $car_brands_ids = Car::select('car_brand_id')->groupBy('car_brand_id')->get();
+        $car_brands =  CarBrand::whereIn('id', $car_brands_ids)->get();
+        return CarBrandResource::collection($car_brands);
+    }
+
+    public function listModels(ListModelsRequest $request)
+    {
+        $car_models_ids = Car::select('car_model_id')->groupBy('car_model_id')->where('car_brand_id', $request->input('car_brand_id'))->get();
+        $car_models =  CarModel::with('brand')->whereIn('id', $car_models_ids)->get();
+        return CarModelResource::collection($car_models);
+    }
+
+    public function listCars(ListCarsRequest $request)
+    {
+        $cars = Car::with(['brand', 'brand.model'])
+            ->where('car_brand_id', $request->input('car_brand_id'))
+            ->where('car_model_id', $request->input('car_model_id'))
+            ->orderBy('year', 'desc')
+            ->get();
+        $years = $cars->groupBy(['year']);
+
+        $data = [];
+
+        foreach($years as $year => $car){
+            $data[$year] = CarResource::collection($car);
+        }
+
+        return $data;
+    }
+}

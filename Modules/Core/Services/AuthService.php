@@ -24,15 +24,6 @@ use Throwable;
 
 class AuthService
 {
-    private function appToRole(){
-        $app = request()->header('app');
-
-        $appToRole = [
-            'client' => 'client'
-        ];
-        
-        return $appToRole[$app]??'client';
-    }
 
     private function userWithAuthToken($user): JsonResource{
         $user->auth_token = $user->createToken('auth', ['*'], Carbon::now()->addDays(120))->plainTextToken;
@@ -56,7 +47,6 @@ class AuthService
         $data = $request->all(['name', 'email', 'phone', 'password']);
 
         $user = User::create($data);
-        $user->attachRole($this->appToRole());
 
         return $this->userWithAuthToken($user);
     }
@@ -87,7 +77,12 @@ class AuthService
     {
         $phone = $request->input('phone');
         $password = $request->input('password');
-        $role = $this->appToRole();
+
+        $appToRole = [
+            'client' => 'client'
+        ];
+
+        $role = $appToRole[app()->header('app')];
 
         if (
             Auth::attempt([

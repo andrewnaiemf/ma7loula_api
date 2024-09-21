@@ -41,7 +41,7 @@ class AddressService
         }
 
         if ($request->input("is_default") || $this->user->default_address_id == null) {
-            $this->user->update([
+            $this->user->client->update([
                 'default_address_id' => $address->id
             ]);
         }
@@ -67,7 +67,7 @@ class AddressService
     }
 
     public function setDefault(DeleteAddressRequest $request) {
-        return $this->user->update([
+        return $this->user->client->update([
             'default_address_id' => $request->input('id')
         ]);
     }

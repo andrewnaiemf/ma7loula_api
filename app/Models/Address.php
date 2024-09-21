@@ -25,6 +25,6 @@ class Address extends Model
     }
 
     public function getIsDefaultAttribute(){
-        return $this->user->default_address_id == $this->id;
+        return $this->user->client->default_address_id == $this->id;
     }
 }

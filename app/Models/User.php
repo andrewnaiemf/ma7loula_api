@@ -3,14 +3,18 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Modules\Core\Observers\UserObserver;
 use Modules\Core\Plugins\SMS\smsable;
 use Modules\Core\Traits\Auth\HasRoles;
 
+#[ObservedBy([UserObserver::class])]
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, SoftDeletes, smsable, HasRoles, HasApiTokens;
@@ -51,7 +55,19 @@ class User extends Authenticatable
         ];
     }
 
+    public function cars(){
+        return $this->belongsToMany(Car::class, 'user_car')->withPivot(['created_at', 'deleted_at']);
+    }
+
+    public function client(){
+        return $this->hasOne(Client::class);
+    }
+
     public function defaultAddress(){
-        return $this->hasOne(Address::class, 'id', 'default_address_id');
+        return $this->client->defaultAddress();
+    }
+
+    public function defaultCar(){
+        return $this->client->defaultCar();
     }
 }

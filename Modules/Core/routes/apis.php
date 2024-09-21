@@ -2,7 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Core\Controllers\AddressController;
-use Modules\Core\Controllers\Auth\AuthController;
+use Modules\Core\Controllers\AuthController;
+use Modules\Core\Controllers\CarController;
 use Modules\Core\Middleware\ValidateHeaders;
 
 Route::middleware(ValidateHeaders::class)->prefix('api/v1')->group(function(){
@@ -27,6 +28,14 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1')->group(function(){
         Route::controller(AddressController::class)->group(function(){
             Route::get('states', 'states');
             Route::get('cities', 'cities');
+        });
+    });
+
+    Route::prefix('car')->group(function(){
+        Route::controller(CarController::class)->group(function(){
+            Route::get('brands', 'listBrands');
+            Route::get('models', 'listModels');
+            Route::get('list', 'listCars');
         });
     });
 });

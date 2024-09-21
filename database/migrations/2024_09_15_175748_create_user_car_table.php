@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('user_car', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->index();
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
 
             $table->unsignedBigInteger('car_id');
@@ -22,6 +22,7 @@ return new class extends Migration
 
             $table->timestamps();
             $table->softDeletes();
+            $table->unique(['user_id', 'car_id', 'deleted_at']);
         });
     }
 

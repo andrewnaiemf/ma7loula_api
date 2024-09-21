@@ -1,11 +1,11 @@
 <?php
- 
- namespace Modules\Client\Resources;
- 
+
+namespace Modules\Core\Resources;
+
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ClientAuthResource extends JsonResource
+class CarBrandResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,11 +17,6 @@ class ClientAuthResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'email' => $this->email,
-            'phone' => $this->phone,
-            'auth_token' => $this->auth_token,
-            'default_address' => new AddressResource($this->defaultAddress),
-            'default_car' => new CarResource($this->defaultCar)
         ];
     }
 }

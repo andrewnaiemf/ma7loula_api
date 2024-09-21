@@ -9,4 +9,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class CarModel extends Model
 {
     use HasFactory, SoftDeletes;
+
+    public function brand(){
+        return $this->belongsTo(CarBrand::class, 'car_brand_id');
+    }
 }

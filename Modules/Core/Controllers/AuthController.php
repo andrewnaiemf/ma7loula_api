@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Core\Controllers\Auth;
+namespace Modules\Core\Controllers;
 
 use Illuminate\Support\Facades\RateLimiter;
 use Modules\Core\Controllers\Controller;

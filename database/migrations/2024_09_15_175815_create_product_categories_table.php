@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ProductCategory;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -24,6 +25,17 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
+        ProductCategory::insert([
+            [
+                'id' => 1,
+                'name' => 'Batteries',
+            ],
+            [
+                'id' => 2,
+                'name' => 'Tires'
+            ]
+        ]);
     }
 
     /**

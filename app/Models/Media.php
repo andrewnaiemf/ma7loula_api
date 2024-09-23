@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Media extends Model
 {
     use HasFactory;
+
+
+    public function getFileUrlAttribute(){
+        return url($this->path .'/'.$this->filename);
+    }
 }

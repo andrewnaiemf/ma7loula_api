@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Car;
-use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,9 +13,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            StateSeeder::class,
-            CitySeeder::class,
-            CarSeeder::class,
+            // StateSeeder::class,
+            // CitySeeder::class,
+            // CarSeeder::class,
+            ProductCategorySeeder::class
         ]);
     }
 }

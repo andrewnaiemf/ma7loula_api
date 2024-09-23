@@ -4,18 +4,31 @@ use Illuminate\Support\Facades\Route;
 use Modules\Client\Controllers\AddressController;
 use Modules\Client\Controllers\CarController;
 use Modules\Client\Controllers\HomeController;
+use Modules\Client\Controllers\ProductCategoryController;
+use Modules\Client\Controllers\ProductController;
 use Modules\Core\Middleware\ValidateHeaders;
 
-Route::middleware(ValidateHeaders::class)->prefix('api/v1/client')->group(function(){
+Route::middleware(ValidateHeaders::class)->prefix('api/v1/client')->group(function () {
 
-    Route::controller(HomeController::class)->group(function(){
+    Route::controller(HomeController::class)->group(function () {
         Route::get('start', 'AppStart');
     });
 
 
-    Route::middleware(['auth:sanctum'])->group(function(){
+    Route::prefix("car-parts")->group(function () {
+        Route::get('categories', [ProductCategoryController::class, 'list']);
+        Route::get('products', [ProductController::class, 'list']);
+    });
 
-        Route::controller(AddressController::class)->prefix("address")->group(function(){
+
+    Route::controller(HomeController::class)->group(function () {
+        Route::get('sliders', 'HomeSliders');
+    });
+
+
+    Route::middleware(['auth:sanctum'])->group(function () {
+
+        Route::controller(AddressController::class)->prefix("address")->group(function () {
             Route::get('list', 'list');
             Route::post('create', 'create');
             Route::put('update', 'update');
@@ -23,7 +36,7 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1/client')->group(functi
             Route::post('set-default', 'setDefault');
         });
 
-        Route::controller(CarController::class)->prefix("car")->group(function(){
+        Route::controller(CarController::class)->prefix("car")->group(function () {
             Route::post('add', 'addCar');
             Route::get('list', 'listCars');
             Route::delete('delete', 'deleteCar');
@@ -31,9 +44,5 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1/client')->group(functi
         });
 
 
-        Route::controller(HomeController::class)->group(function(){
-            Route::get('sliders', 'HomeSliders');
-        });
     });
-
 });

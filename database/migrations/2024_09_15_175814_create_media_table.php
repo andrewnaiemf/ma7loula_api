@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('media', function (Blueprint $table) {
             $table->id();
-            $table->string('mediable_type');
-            $table->unsignedBigInteger('mediable_id');
+            $table->string('media_type');
+            $table->unsignedBigInteger('media_id');
             $table->string('path');
             $table->string('filename');
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['mediable_type', 'mediable_id']);
+            $table->index(['media_id', 'media_type']);
         });
     }
 

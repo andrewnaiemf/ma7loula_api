@@ -1,0 +1,16 @@
+<?php
+namespace Modules\Core\Traits;
+
+use App\Models\Media;
+
+trait HasMedia{
+    
+    public function media(){
+        return $this->morphOne(Media::class, 'media', 'model_type', 'model_id');
+    }
+
+
+    public function getImageAttribute(){
+        
+    }
+}

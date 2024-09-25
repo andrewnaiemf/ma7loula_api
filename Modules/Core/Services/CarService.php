@@ -34,14 +34,8 @@ class CarService
             ->where('car_model_id', $request->input('car_model_id'))
             ->orderBy('year', 'desc')
             ->get();
-        $years = $cars->groupBy(['year']);
 
-        $data = [];
 
-        foreach($years as $year => $car){
-            $data[$year] = CarResource::collection($car);
-        }
-
-        return $data;
+        return CarResource::collection($cars);
     }
 }

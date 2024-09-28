@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
 
-            $table->string('title')->index();
-            $table->mediumText('description')->index();
+            $table->string('name')->index();
+            $table->mediumText('description')->nullable()->default(null);
 
             $table->unsignedBigInteger('category_id')->index();
             $table->foreign('category_id')->references('id')->on('product_categories')->onUpdate('cascade')->onDelete('cascade');
@@ -33,7 +33,11 @@ return new class extends Migration
 
             $table->enum('status', ['published', 'pending', 'rejected'])->default('pending');
 
+            $table->unsignedBigInteger('default_media_id')->nullable()->index();
+            $table->foreign('default_media_id')->references('id')->on('media')->onUpdate('cascade')->onDelete('cascade');
+
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

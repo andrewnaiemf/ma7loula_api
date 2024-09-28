@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,9 @@ class VendorFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => fake()->words(2, true),
+            'user_id' => User::factory(1)->create()->first()->id,
+            'type' => fake()->randomElement(['tires-batteries','car-parts','workshop','winch'])
         ];
     }
 }

@@ -4,9 +4,8 @@ namespace Modules\Client\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Modules\Core\Resources\MediaResource;
 
-class ProductCategoryResource extends JsonResource
+class ProductBrandResource extends JsonResource
 {
 
     /**
@@ -18,9 +17,7 @@ class ProductCategoryResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'image' => new MediaResource($this->media),
-            'subCategories' => SubProductCategoryResource::collection($this->subCategories)
+            'name' => $this->name
         ];
     }
 }

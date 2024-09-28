@@ -17,6 +17,7 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1')->group(function(){
             Route::post('reset-password', 'resetPassword');
 
             Route::middleware(['auth:sanctum'])->group(function(){
+                Route::get('user-profile', 'userProfile');
                 Route::post('update-profile', 'updateProfile');
                 Route::post('update-phone', 'updatePhone');
                 Route::post('update-password', 'updatePassword');

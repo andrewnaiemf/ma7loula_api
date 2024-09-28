@@ -5,8 +5,9 @@ namespace Modules\Client\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Modules\Core\Resources\MediaResource;
+use Modules\Core\Resources\SimpleResource;
 
-class ProductCategoryResource extends JsonResource
+class OrderProductResource extends JsonResource
 {
 
     /**
@@ -19,8 +20,11 @@ class ProductCategoryResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'image' => new MediaResource($this->media),
-            'subCategories' => SubProductCategoryResource::collection($this->subCategories)
+            'unit_price' => (float) $this->pivot->unit_price,
+            'qty' => (int) $this->pivot->qty,
+            'total' => (float) $this->pivot->total,
+            'thumbnail' => new MediaResource($this->thumbnail),
+            'vendor' => new SimpleResource($this->vendor)
         ];
     }
 }

@@ -9,8 +9,7 @@ trait HasMedia{
         return $this->morphOne(Media::class, 'media', 'model_type', 'model_id');
     }
 
-
-    public function getImageAttribute(){
-        
+    public function allMedia(){
+        return $this->morphMany(Media::class, 'media', 'model_type', 'model_id');
     }
 }

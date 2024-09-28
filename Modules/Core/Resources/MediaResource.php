@@ -1,14 +1,12 @@
 <?php
 
-namespace Modules\Client\Resources;
+namespace Modules\Core\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Modules\Core\Resources\MediaResource;
 
-class ProductCategoryResource extends JsonResource
+class MediaResource extends JsonResource
 {
-
     /**
      * Transform the resource into an array.
      *
@@ -18,9 +16,7 @@ class ProductCategoryResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'image' => new MediaResource($this->media),
-            'subCategories' => SubProductCategoryResource::collection($this->subCategories)
+            'url' => $this->file_url,
         ];
     }
 }

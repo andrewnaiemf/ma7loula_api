@@ -2,6 +2,7 @@
 
 namespace Modules\Core\Controllers;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Modules\Core\Controllers\Controller;
 use Modules\Core\Requests\Auth\LoginRequest;
@@ -77,6 +78,13 @@ class AuthController extends Controller
     {
         return $this->successResponse([
             'user' => $this->authService->updatePassword($request)
+        ]);
+    }
+
+    public function userProfile()
+    {
+        return $this->successResponse([
+            'user' => $this->authService->userProfile()
         ]);
     }
 

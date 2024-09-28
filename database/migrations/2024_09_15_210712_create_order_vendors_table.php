@@ -20,14 +20,13 @@ return new class extends Migration
             $table->unsignedBigInteger('vendor_id')->index();
             $table->foreign('vendor_id')->references('id')->on('vendors')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->unsignedBigInteger('worker_id')->index();
+            $table->unsignedBigInteger('worker_id')->index()->nullable()->default(null);
             $table->foreign('worker_id')->references('id')->on('workers')->onUpdate('cascade')->onDelete('cascade');
 
             $table->string('status')->index();
 
             $table->boolean('has_service');
             $table->string('delivery_time');
-            $table->string('delivery_date');
 
             $table->string('products_price');
             $table->string('services_price');

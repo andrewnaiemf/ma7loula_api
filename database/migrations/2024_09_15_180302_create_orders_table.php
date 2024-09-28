@@ -29,6 +29,7 @@ return new class extends Migration
             $table->string('status')->index();
             $table->string('payment_method');
             $table->enum('type', ['tire', 'battery', 'car-parts', 'winch', 'emergency'])->index();
+            $table->timestamp('delivery_time')->nullable()->default(null);
             $table->string('products_price');
             $table->string('services_price');
             $table->string('tax_price');

@@ -4,6 +4,7 @@ namespace Modules\Core\Services;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -59,7 +60,7 @@ class AuthService
         $user =Auth::user();
         $user->update($data);
 
-        return $this->userWithAuthToken($user);
+        return $this->UserResource($user);
     }
 
     public function updatePhone(UpdatePhoneRequest $request): JsonResource
@@ -70,7 +71,7 @@ class AuthService
         $user = Auth::user();
         $user->update($data);
 
-        return $this->userWithAuthToken($user);
+        return $this->UserResource($user);
     }
 
     public function login(LoginRequest $request): JsonResource | Throwable
@@ -113,7 +114,7 @@ class AuthService
             'password' => $password
         ]);
 
-        return $this->userWithAuthToken($user);
+        return $this->UserResource($user);
     }
 
     public function updatePassword(UpdatePasswordRequest $request){
@@ -127,6 +128,12 @@ class AuthService
             throw new HttpErrorException('wrong password', [], 422);
         }
 
-        return $this->userWithAuthToken($user);
+        return $this->UserResource($user);
+    }
+
+    public function userProfile(){
+        /** @var User $user */
+        $user = Auth::user();
+        return $this->UserResource($user);
     }
 }

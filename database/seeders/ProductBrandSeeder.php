@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\ProductBrand;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -12,6 +13,9 @@ class ProductBrandSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        ProductBrand::create([
+            'name' => 'General',
+            'product_category_id' => 5
+        ]);
     }
 }

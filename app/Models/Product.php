@@ -11,6 +11,9 @@ class Product extends Model
 {
     use HasFactory, SoftDeletes, HasMedia;
 
+    public const BatteriesCategory = 1;
+    public const TiresCategory = 2;
+
     public function cars(){
         return $this->belongsToMany(Car::class, 'product_car');
     }
@@ -29,5 +32,9 @@ class Product extends Model
 
     public function thumbnail(){
         return $this->belongsTo(Media::class, 'default_media_id');
+    }
+
+    public function attrs(){
+        return $this->hasMany(ProductAttribute::class);
     }
 }

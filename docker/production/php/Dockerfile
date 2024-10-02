@@ -41,6 +41,8 @@ RUN chmod +x pickle \
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+RUN docker-php-ext-install pcntl
+
 COPY ./docker/production/php/supervisor /etc/supervisor
 
 RUN groupadd -g 1000 ma7lola && useradd -u 1000 -g 1000 ma7lola --password password

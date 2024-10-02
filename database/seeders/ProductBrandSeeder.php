@@ -14,6 +14,16 @@ class ProductBrandSeeder extends Seeder
     public function run(): void
     {
         ProductBrand::create([
+            'name' => 'Batteries Brand',
+            'product_category_id' => 1
+        ]);
+
+        ProductBrand::create([
+            'name' => 'Tires Brand',
+            'product_category_id' => 2
+        ]);
+
+        ProductBrand::create([
             'name' => 'General',
             'product_category_id' => 5
         ]);

@@ -42,6 +42,8 @@ RUN pecl install redis xdebug\
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+RUN docker-php-ext-install pcntl
+
 COPY ./docker/dev/php/supervisor /etc/supervisor
 COPY ./docker/dev/php/php.ini /usr/local/etc/php/conf.d/custom.ini
 COPY ./docker/dev/php/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini

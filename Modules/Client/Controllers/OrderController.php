@@ -15,10 +15,19 @@ class OrderController extends Controller
 
     public function __construct(private OrderService $orderService) {}
 
+    public function orderDetails(CarPartsOrderDetailsRequest $request)
+    {
+        return $this->successResponse([
+            'order' => $this->orderService->orderDetails($request, 'car-parts')
+        ]);
+    }
+
+
+    #car parts orders
     public function createCarPartsOrder(CreateCarPartsOrderRequest $request)
     {
         return $this->successResponse([
-            'order' => $this->orderService->createCarPartsOrder($request)
+            'order' => $this->orderService->createOrder($request, 'car-parts')
         ]);
     }
 
@@ -31,10 +40,40 @@ class OrderController extends Controller
         );
     }
 
-    public function orderDetails(CarPartsOrderDetailsRequest $request)
+
+
+    #tire orders
+    public function createTiresOrder(CreateCarPartsOrderRequest $request)
     {
         return $this->successResponse([
-            'order' => $this->orderService->orderDetails($request, 'car-parts')
+            'order' => $this->orderService->createOrder($request, 'tire')
         ]);
+    }
+
+    public function listTiresOrder(Request $request)
+    {
+        return $this->listResponse(
+            'orders',
+            $this->orderService->listOrders($request, 'tire'),
+            new OrderListCarPartsResource([])
+        );
+    }
+
+
+    #battery orders
+    public function createBatteryOrder(CreateCarPartsOrderRequest $request)
+    {
+        return $this->successResponse([
+            'order' => $this->orderService->createOrder($request, 'battery')
+        ]);
+    }
+
+    public function lisBatteryOrder(Request $request)
+    {
+        return $this->listResponse(
+            'orders',
+            $this->orderService->listOrders($request, 'battery'),
+            new OrderListCarPartsResource([])
+        );
     }
 }

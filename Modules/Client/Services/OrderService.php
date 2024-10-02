@@ -22,7 +22,7 @@ class OrderService
         $this->user = Auth::user();
     }
 
-    public function createCarPartsOrder(CreateOrderRequest $request)
+    public function createOrder(CreateOrderRequest $request, $type)
     {
         $products_qty_data = [];
         foreach ($request->input('products') as $product) {
@@ -57,7 +57,7 @@ class OrderService
                 'vendor_id' => $vendor_id,
                 'status' => 'new',
                 'has_service' => false,
-                'delivery_time' =>  $delivery_time ,
+                'delivery_time' =>  $delivery_time,
                 'services_price' => 0,
                 'tax_price' => 0,
                 'delivery_price' => 0,
@@ -75,7 +75,7 @@ class OrderService
             'payment_method' => $request->input('payment_method'),
             'user_id' => $this->user->id,
             'status' => 'new',
-            'type' => 'car-parts',
+            'type' =>  $type,
             'car_id' => UserCar::find($request->input('user_car_id'))->car_id,
             'products_price' => $products_price,
             'services_price' => 0,
@@ -95,7 +95,6 @@ class OrderService
 
     public function listOrders(Request $request, string $type)
     {
-
         $orders = Order::with([
             'products',
             'products.thumbnail',
@@ -113,7 +112,8 @@ class OrderService
         return $orders;
     }
 
-    public function orderDetails(CarPartsOrderDetailsRequest $request){
+    public function orderDetails(CarPartsOrderDetailsRequest $request)
+    {
         $order = Order::with([
             'products',
             'products.thumbnail',

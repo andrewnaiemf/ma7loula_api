@@ -98,4 +98,8 @@ class Order extends Model
     {
         return $val ? Carbon::createFromFormat('Y-m-d H:i:s', $val) : null;
     }
+
+    public function rate(){
+        return $this->hasOne(OrderRate::class);
+    }
 }

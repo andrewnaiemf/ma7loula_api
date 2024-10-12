@@ -3,9 +3,12 @@
 namespace Modules\Client\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Modules\Client\Requests\CarParts\CarPartsOrderDetailsRequest;
 use Modules\Client\Requests\CarParts\CreateOrderRequest as CreateCarPartsOrderRequest;
-use Modules\Client\Resources\OrderCarPartsResource;
+use Modules\Client\Requests\Order\GetAvailableSoltsRequest;
+use Modules\Client\Requests\Order\RateOrderRequest;
+use Modules\Client\Requests\Order\UpdateOrderStatusRequest;
 use Modules\Client\Resources\OrderListCarPartsResource;
 use Modules\Client\Services\OrderService;
 use Modules\Core\Controllers\Controller;
@@ -75,5 +78,24 @@ class OrderController extends Controller
             $this->orderService->listOrders($request, 'battery'),
             new OrderListCarPartsResource([])
         );
+    }
+
+
+    public function updateOrderStatus(UpdateOrderStatusRequest $request)
+    {
+        return $this->successResponse([
+            'order' => $this->orderService->updateOrderStatus($request)
+        ]);
+    }
+
+    public function rateOrder(RateOrderRequest $request) {
+        return $this->successResponse([
+            'order' => $this->orderService->rateOrder($request)
+        ]);
+    }
+
+    public function getAvailableSlots(GetAvailableSoltsRequest $request)
+    {
+        return $this->successResponse($this->orderService->getAvailableSlots($request));
     }
 }

@@ -3,6 +3,7 @@
 namespace Modules\Client\Services;
 
 use App\Models\Order;
+use App\Models\OrderRate;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\UserCar;
@@ -11,11 +12,15 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Modules\Client\Requests\CarParts\CarPartsOrderDetailsRequest;
 use Modules\Client\Requests\CarParts\CreateOrderRequest;
+use Modules\Client\Requests\Order\GetAvailableSoltsRequest;
+use Modules\Client\Requests\Order\RateOrderRequest;
+use Modules\Client\Requests\Order\UpdateOrderStatusRequest;
 use Modules\Client\Resources\OrderCarPartsResource;
+use Modules\Client\Resources\OrderResource;
 
 class OrderService
 {
-    private User $user;
+    private ?User $user;
 
     public function __construct()
     {
@@ -90,7 +95,7 @@ class OrderService
         $order->vendors()->sync($order_vendors);
         $order->products()->sync($order_products);
 
-        return new OrderCarPartsResource($order);
+        return new OrderResource($order);
     }
 
     public function listOrders(Request $request, string $type)
@@ -123,6 +128,53 @@ class OrderService
             ->where('id', $request->input('id'))
             ->first();
 
-        return new OrderCarPartsResource($order);
+        return new OrderResource($order);
+    }
+
+    public function updateOrderStatus(UpdateOrderStatusRequest $request)
+    {
+        $order = Order::find($request->input('id'));
+        $order->update([
+            'status' => $request->input('status')
+        ]);
+
+        return new OrderResource($order);
+    }
+
+    public function getAvailableSlots(GetAvailableSoltsRequest $request)
+    {
+        $slots = [];
+
+        $startTime = Carbon::createFromFormat('Y-m-d H:i:s', $request->input('date') . '10:00:00');
+        $endTime = Carbon::createFromFormat('Y-m-d H:i:s', $request->input('date') . '22:00:00');
+
+        while ($endTime >= $startTime) {
+            $slots[] = $startTime->format('H:i:s');
+            $startTime->addHours(2);
+        }
+
+        return [
+            'date' => $request->input('date'),
+            'slots' => $slots
+        ];
+    }
+
+    public function rateOrder(RateOrderRequest $request)
+    {
+        OrderRate::updateOrCreate(
+            [
+                'order_id' => $request->input('order_id')
+            ],
+            [
+                'products' => $request->input('order_id'),
+                'worker' => $request->input('worker_rate'),
+                'services' => $request->input('services_rate'),
+                'comment' => $request->input('comment'),
+            ]
+        );
+
+        $order = Order::find($request->input('order_id'));
+
+        return new OrderResource($order);
     }
 }

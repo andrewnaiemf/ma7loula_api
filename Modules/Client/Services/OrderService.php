@@ -11,12 +11,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Modules\Client\Requests\CarParts\CarPartsOrderDetailsRequest;
-use Modules\Client\Requests\CarParts\CreateOrderRequest;
+use Modules\Client\Requests\Order\CreateOrderRequest;
 use Modules\Client\Requests\Order\GetAvailableSoltsRequest;
 use Modules\Client\Requests\Order\RateOrderRequest;
 use Modules\Client\Requests\Order\UpdateOrderStatusRequest;
 use Modules\Client\Resources\OrderCarPartsResource;
 use Modules\Client\Resources\OrderResource;
+use Modules\Client\Resources\WinchOrder\WinchOrderResource;
 
 class OrderService
 {
@@ -117,18 +118,40 @@ class OrderService
         return $orders;
     }
 
-    public function orderDetails(CarPartsOrderDetailsRequest $request)
+    public function orderDetails(CarPartsOrderDetailsRequest $request, $type)
     {
-        $order = Order::with([
-            'products',
-            'products.thumbnail',
-            'products.vendor'
-        ])
+
+        $with = [];
+
+        switch ($type) {
+            case 'winch':
+                $with = [];
+                break;
+
+            default:
+                $with = [
+                    'products',
+                    'products.thumbnail',
+                    'products.vendor'
+                ];
+        }
+
+
+        $order = Order::with($with)
             ->where('user_id', $this->user->id)
             ->where('id', $request->input('id'))
             ->first();
 
-        return new OrderResource($order);
+        switch ($type) {
+            case 'winch':
+                $res =  new WinchOrderResource($order);
+                break;
+
+            default:
+                $res = new OrderResource($order);
+        }
+
+        return $res;
     }
 
     public function updateOrderStatus(UpdateOrderStatusRequest $request)

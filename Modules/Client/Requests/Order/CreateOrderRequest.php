@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Client\Requests\CarParts;
+namespace Modules\Client\Requests\Order;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;

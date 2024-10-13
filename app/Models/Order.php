@@ -102,4 +102,8 @@ class Order extends Model
     public function rate(){
         return $this->hasOne(OrderRate::class);
     }
+
+    public function winch_order(){
+        return $this->hasOne(OrderWinch::class);
+    }
 }

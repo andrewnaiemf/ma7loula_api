@@ -5,7 +5,7 @@ namespace Modules\Client\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Modules\Client\Requests\CarParts\CarPartsOrderDetailsRequest;
-use Modules\Client\Requests\CarParts\CreateOrderRequest as CreateCarPartsOrderRequest;
+use Modules\Client\Requests\Order\CreateOrderRequest as CreateCarPartsOrderRequest;
 use Modules\Client\Requests\Order\GetAvailableSoltsRequest;
 use Modules\Client\Requests\Order\RateOrderRequest;
 use Modules\Client\Requests\Order\UpdateOrderStatusRequest;

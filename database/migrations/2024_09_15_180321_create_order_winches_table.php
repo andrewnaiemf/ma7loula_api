@@ -17,10 +17,10 @@ return new class extends Migration
             $table->unsignedBigInteger('order_id')->index();
             $table->foreign('order_id')->references('id')->on('orders')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->unsignedBigInteger('vendor_id')->index();
+            $table->unsignedBigInteger('vendor_id')->index()->nullable();;
             $table->foreign('vendor_id')->references('id')->on('vendors')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->unsignedBigInteger('worker_id')->index();
+            $table->unsignedBigInteger('worker_id')->index()->nullable();;
             $table->foreign('worker_id')->references('id')->on('workers')->onUpdate('cascade')->onDelete('cascade');
 
             $table->string('from_lat');
@@ -31,7 +31,8 @@ return new class extends Migration
             $table->string('to_lon');
             $table->string('to_text')->nullable();
 
-            $table->string('distance_in_km');
+            $table->string('distance_in_meters');
+            $table->string('duration_in_minutes');
 
             $table->timestamps();
             $table->softDeletes();

@@ -9,6 +9,7 @@ use Modules\Client\Controllers\OrderController;
 use Modules\Client\Controllers\ProductCategoryController;
 use Modules\Client\Controllers\ProductController;
 use Modules\Client\Controllers\TireController;
+use Modules\Client\Controllers\WinchOrderController;
 use Modules\Core\Middleware\ValidateHeaders;
 
 Route::middleware(ValidateHeaders::class)->prefix('api/v1/client')->group(function () {
@@ -65,6 +66,15 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1/client')->group(functi
             Route::post('create-order', [OrderController::class, 'createBatteryOrder']);
             Route::post('update-order-status', [OrderController::class, 'updateOrderStatus']);
             Route::post('rate-order', [OrderController::class, 'rateOrder']);
+        });
+    });
+
+
+    Route::prefix("winch")->group(function () {
+        Route::post('calculate-price', [WinchOrderController::class, 'calculatePrice']);
+        
+        Route::middleware(['auth:sanctum'])->group(function () {
+            Route::post('create-order', [WinchOrderController::class, 'createOrder']);
         });
     });
 

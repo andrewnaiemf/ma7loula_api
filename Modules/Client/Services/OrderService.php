@@ -73,17 +73,15 @@ class OrderService
             $products_price += $total;
         }
 
-        $user_car = UserCar::where('car_id', $request->input('user_car_id'))->where('user_id', $this->user->id)->first();
-
         $order_data = [
-            'user_car_id' => $user_car?->id,
+            'user_car_id' => $request->input('user_car_id'),
             'address_id' => $request->input('address_id'),
             'delivery_time' =>  $delivery_time,
             'payment_method' => $request->input('payment_method'),
             'user_id' => $this->user->id,
             'status' => 'new',
             'type' =>  $type,
-            'car_id' => $request->input('user_car_id'),
+            'car_id' => UserCar::find($request->input('user_car_id'))->car_id,
             'products_price' => $products_price,
             'services_price' => 0,
             'tax_price' => 0,

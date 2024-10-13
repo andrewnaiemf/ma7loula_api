@@ -18,8 +18,7 @@ class CreateOrderRequest extends PublicRequest
                 ],
                 'user_car_id' => [
                     'required',
-                    Rule::exists('cars', 'id')->whereNull('deleted_at'),
-                    Rule::exists('user_car', 'car_id')->whereNull('deleted_at')->where('user_id', Auth::user()->id),
+                    Rule::exists('user_car', 'id')->whereNull('deleted_at')->where('user_id', Auth::user()->id)
                 ],
                 'payment_method' => [
                     'required',
@@ -30,22 +29,17 @@ class CreateOrderRequest extends PublicRequest
                     'in:fast,scheduled'
                 ],
                 'delivery_time' => [
-                    'required_if:delivery_type,scheduled',
-                    'after:today',
-                    'date_format:Y-m-d H:i'
+                    'required_if:delivery_type,scheduled', 'after:today','date_format:Y-m-d H:i'
                 ],
                 'products' => [
-                    'required',
-                    'array'
+                    'required', 'array'
                 ],
                 'products.*.id' => [
                     'required',
                     Rule::exists('products', 'id')->whereNull('deleted_at')
                 ],
                 'products.*.qty' => [
-                    'required',
-                    'numeric',
-                    'min:1',
+                    'required', 'numeric', 'min:1',
                 ]
             ];
     }

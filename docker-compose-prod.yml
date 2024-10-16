@@ -74,6 +74,8 @@ services:
     redis:
         image: redis:7.2.4
         restart: unless-stopped
+        ports:
+            - 6379:6379
         command: >
             --requirepass ${REDIS_PASSWORD}
         networks:

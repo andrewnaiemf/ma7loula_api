@@ -62,7 +62,7 @@ class OrderService
             $order_vendors[] = [
                 'vendor_id' => $vendor_id,
                 'status' => 'new',
-                'has_service' => false,
+                'has_service' => $request->input('has_service', false),
                 'delivery_time' =>  $delivery_time,
                 'services_price' => 0,
                 'tax_price' => 0,
@@ -77,6 +77,7 @@ class OrderService
         $order_data = [
             'user_car_id' => $request->input('user_car_id'),
             'address_id' => $request->input('address_id'),
+            'has_service' => $request->input('has_service', false),
             'delivery_time' =>  $delivery_time,
             'payment_method' => $request->input('payment_method'),
             'user_id' => $this->user->id,

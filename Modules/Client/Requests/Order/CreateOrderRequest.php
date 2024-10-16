@@ -29,17 +29,26 @@ class CreateOrderRequest extends PublicRequest
                     'in:fast,scheduled'
                 ],
                 'delivery_time' => [
-                    'required_if:delivery_type,scheduled', 'after:today','date_format:Y-m-d H:i'
+                    'required_if:delivery_type,scheduled',
+                    'after:today',
+                    'date_format:Y-m-d H:i'
                 ],
                 'products' => [
-                    'required', 'array'
+                    'required',
+                    'array'
                 ],
                 'products.*.id' => [
                     'required',
                     Rule::exists('products', 'id')->whereNull('deleted_at')
                 ],
                 'products.*.qty' => [
-                    'required', 'numeric', 'min:1',
+                    'required',
+                    'numeric',
+                    'min:1',
+                ],
+                'has_service' => [
+                    'boolean',
+                    'nullable'
                 ]
             ];
     }

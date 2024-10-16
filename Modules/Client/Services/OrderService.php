@@ -171,9 +171,14 @@ class OrderService
         $startTime = Carbon::createFromFormat('Y-m-d H:i:s', $request->input('date') . '10:00:00');
         $endTime = Carbon::createFromFormat('Y-m-d H:i:s', $request->input('date') . '22:00:00');
 
+        $i = 0;
         while ($endTime >= $startTime) {
-            $slots[] = $startTime->format('H:i:s');
+            $slots[] = [
+                "time" => $startTime->format('H:i:s'),
+                "is_available" => (($i%2) == 0)
+            ];
             $startTime->addHours(2);
+            $i++;
         }
 
         return [

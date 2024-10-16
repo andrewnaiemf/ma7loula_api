@@ -16,6 +16,10 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1/client')->group(functi
 
     Route::controller(HomeController::class)->group(function () {
         Route::get('start', 'AppStart');
+        Route::get('about-app', 'aboutApp');
+        Route::get('faq', 'faq');
+        Route::get('privacy-policy', 'privacyPolicy');
+        Route::get('terms-and-conditions', 'termsAndConditions');
     });
 
 

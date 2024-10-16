@@ -34,9 +34,7 @@ RUN docker-php-ext-install \
     pdo_mysql \
     zip
 
-COPY ./pickle .
-RUN chmod +x pickle \
-    && ./pickle install --defaults redis \
+RUN pecl install redis \
     && docker-php-ext-enable redis
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

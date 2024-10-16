@@ -11,7 +11,8 @@ services:
         container_name: app
         restart: unless-stopped
         volumes:
-            - ma7lola-storage:/var/www/html/storage
+            - ./:/var/www/html
+            # - ma7lola-storage:/var/www/html/storage
         networks:
             - ma7lola
         depends_on:
@@ -23,7 +24,8 @@ services:
         container_name: workers
         restart: unless-stopped
         volumes:
-            - ma7lola-storage:/var/www/html/storage
+            - ./:/var/www/html
+            # - ma7lola-storage:/var/www/html/storage
         networks:
             - ma7lola
         depends_on:
@@ -37,7 +39,8 @@ services:
         restart: unless-stopped
         container_name: nginx
         volumes:
-            - ma7lola-storage:/var/www/html/storage
+            - ./:/var/www/html
+            # - ma7lola-storage:/var/www/html/storage
         ports:
             - "80:80"
         networks:

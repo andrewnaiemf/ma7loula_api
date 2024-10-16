@@ -44,9 +44,9 @@ class WinchOrderController extends Controller
     //for developing
     public function sendFakeOffer(Request $request)
     {
-        return $this->successResponse([
+        return $this->successResponse(/* [
             'offers' => $this->orderService->sendFakeOffer($request)
-        ]);
+        ] */);
     }
 
     public function listWinchDriversOffers(ListWinchDriverOffers $request)

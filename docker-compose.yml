@@ -28,19 +28,6 @@ services:
             - app
         command: /usr/bin/supervisord -c /etc/supervisor/conf.d/laravel-worker.conf
 
-    websocket:
-        image: ma7lola:dev-latest
-        restart: unless-stopped
-        volumes:
-            - ./:/var/www/html
-        ports:
-            - 9090:8080
-        networks:
-            - ma7lola
-        depends_on:
-            - app
-        command: /usr/bin/supervisord -c /etc/supervisor/conf.d/laravel-websocket.conf
-
     nginx:
         image: nginx:1.25.5
         restart: unless-stopped

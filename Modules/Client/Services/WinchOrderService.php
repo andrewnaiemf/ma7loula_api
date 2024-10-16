@@ -6,7 +6,9 @@ use App\Models\Order;
 use App\Models\OrderWinch;
 use App\Models\User;
 use App\Models\UserCar;
+use App\Models\Worker;
 use Illuminate\Support\Facades\Auth;
+use Modules\Client\Events\WinchOrder\WorkerAcceptedOrder;
 use Modules\Client\Requests\WinchOrder\CalculateWinchOrderPriceRequest;
 use Modules\Client\Requests\WinchOrder\CreateWinchOrderRequest;
 use Modules\Client\Resources\WinchOrder\WinchOrderResource;
@@ -62,7 +64,19 @@ class WinchOrderService extends OrderService
             
         ]);
 
+        //for testing
+        $this->sendFakeOffers($order);
+
         return new WinchOrderResource($order);
+    }
+
+    private function sendFakeOffers($order){
+
+        $workers = Worker::where('type', 'winch')->take(3)->get();
+
+        foreach($workers as $worker){
+            WorkerAcceptedOrder::dispatch($order->user, $order, $worker);
+        }
     }
 
 }

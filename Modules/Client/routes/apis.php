@@ -72,6 +72,8 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1/client')->group(functi
 
     Route::prefix("winch")->group(function () {
         Route::post('calculate-price', [WinchOrderController::class, 'calculatePrice']);
+
+        Route::get('emit-event', [WinchOrderController::class, 'testEmitEvent']);
         
         Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('create-order', [WinchOrderController::class, 'createOrder']);

@@ -4,15 +4,11 @@ services:
         build:
             context: .
             dockerfile: docker/production/php/Dockerfile
-            args:
-                - UID=${UID}
-                - GID=${GID}
         image: ma7lola:production-latest
         container_name: app
         restart: unless-stopped
         volumes:
-            - ./:/var/www/html
-            # - ma7lola-storage:/var/www/html/storage
+            - ma7lola-storage:/var/www/html/storage
         networks:
             - ma7lola
         depends_on:
@@ -24,8 +20,7 @@ services:
         container_name: workers
         restart: unless-stopped
         volumes:
-            - ./:/var/www/html
-            # - ma7lola-storage:/var/www/html/storage
+            - ma7lola-storage:/var/www/html/storage
         networks:
             - ma7lola
         depends_on:
@@ -39,10 +34,9 @@ services:
         restart: unless-stopped
         container_name: nginx
         volumes:
-            - ./:/var/www/html
-            # - ma7lola-storage:/var/www/html/storage
+            - ma7lola-storage:/var/www/html/storage
         ports:
-            - "80:80"
+            - "8081:80"
         networks:
             - ma7lola
         depends_on:
@@ -52,8 +46,6 @@ services:
     mysql:
         image: 'mysql:8.0'
         restart: unless-stopped
-        ports:
-            - 3306:3306
         environment:
             MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
             MYSQL_ROOT_HOST: "%"
@@ -71,6 +63,22 @@ services:
             timeout: 5s
         command: --skip-host-cache --skip-name-resolve
       
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin:5.2.1
+        restart: unless-stopped
+        links:
+            - mysql:mysql
+        ports:
+            - 8080:80
+        environment:
+            MYSQL_USERNAME: "${DB_USERNAME}"
+            MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+            PMA_HOST: mysql
+        networks:
+            - ma7lola
+        depends_on:
+            - mysql
+
     redis:
         image: redis:7.2.4
         restart: unless-stopped

@@ -23,6 +23,8 @@ return new class extends Migration
             $table->string('lat')->nullable();
             $table->string('lon')->nullable();
 
+            $table->string('car_plate_number')->nullable();
+
             $table->enum('type', ['winch', 'delivery', 'emergency'])->index();
 
             $table->timestamps();
@@ -37,6 +39,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::disableForeignKeyConstraints();
         Schema::dropIfExists('workers');
     }
 };

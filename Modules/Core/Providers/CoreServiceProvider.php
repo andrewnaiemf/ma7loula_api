@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\RateLimiter;
 use Modules\Core\Exceptions\HttpErrorException;
 class CoreServiceProvider extends ServiceProvider
@@ -23,7 +24,11 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Broadcast::routes(['middleware' => ['auth:sanctum']]);
+        
         $this->loadRoutesFrom(__DIR__.'/../routes/apis.php');
+        $this->loadRoutesFrom(__DIR__."/../routes/channels.php");
+
         $this->loadTranslationsFrom(__DIR__.'/../lang', 'Core');
 
 
@@ -44,5 +49,7 @@ class CoreServiceProvider extends ServiceProvider
                 throw new HttpErrorException(trans('Core::messages.auth.throttle', ['time' => $time->diffForHumans()]));
             });;
         });
+
+
     }
 }

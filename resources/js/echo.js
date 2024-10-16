@@ -11,4 +11,16 @@ window.Echo = new Echo({
     wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
     forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
     enabledTransports: ['ws', 'wss'],
+    auth: {
+        headers: {
+            Authorization: 'Bearer ' + localStorage.getItem("apiToken")
+        },
+    },
+});
+
+
+
+window.Echo.private('user.21')
+.listen('winch.worker.accepted', (e) => {
+    console.log(e)
 });

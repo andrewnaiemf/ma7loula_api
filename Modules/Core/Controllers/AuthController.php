@@ -25,7 +25,7 @@ class AuthController extends Controller
         $otp = $this->authService->sendOTP($request->input('phone'));
         return $this->successResponse([
             'success' => true,
-            'otp_for_testing' => $otp
+            'otp_for_testing' => config('app.debug') ? $otp : null
         ]);
     }
 

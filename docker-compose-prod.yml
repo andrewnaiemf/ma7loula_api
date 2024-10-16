@@ -74,6 +74,8 @@ services:
     redis:
         image: redis:7.2.4
         restart: unless-stopped
+        command: >
+            --requirepass ${REDIS_PASSWORD}
         networks:
             - ma7lola
 

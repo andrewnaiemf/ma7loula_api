@@ -73,10 +73,13 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1/client')->group(functi
     Route::prefix("winch")->group(function () {
         Route::post('calculate-price', [WinchOrderController::class, 'calculatePrice']);
 
-        Route::get('emit-event', [WinchOrderController::class, 'testEmitEvent']);
-        
+        //devloping only
+        Route::get('send-fake-offer', [WinchOrderController::class, 'sendFakeOffer']);
+
+
         Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('create-order', [WinchOrderController::class, 'createOrder']);
+            Route::get('list-offers', [WinchOrderController::class, 'listWinchDriversOffers']);
         });
     });
 

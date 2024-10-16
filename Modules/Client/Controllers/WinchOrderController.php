@@ -4,9 +4,11 @@ namespace Modules\Client\Controllers;
 
 use App\Models\Order;
 use App\Models\Worker;
+use Illuminate\Http\Request;
 use Modules\Client\Events\WinchOrder\WorkerAcceptedOrder;
 use Modules\Client\Requests\WinchOrder\CalculateWinchOrderPriceRequest;
 use Modules\Client\Requests\WinchOrder\CreateWinchOrderRequest;
+use Modules\Client\Requests\WinchOrder\ListWinchDriverOffers;
 use Modules\Client\Services\WinchOrderService;
 use Modules\Core\Controllers\Controller;
 
@@ -39,13 +41,18 @@ class WinchOrderController extends Controller
         ]);
     }
 
-    public function testEmitEvent()
+    //for developing
+    public function sendFakeOffer(Request $request)
     {
-        $order = Order::find(26);
-        $user = $order->user;
-        $worker = Worker::find(10);
+        return $this->successResponse([
+            'offers' => $this->orderService->sendFakeOffer($request)
+        ]);
+    }
 
-        broadcast(new WorkerAcceptedOrder($user, $order, $worker));
-        
+    public function listWinchDriversOffers(ListWinchDriverOffers $request)
+    {
+        return $this->successResponse([
+            'wokers' => $this->orderService->listWinchDriversOffers($request)
+        ]);
     }
 }

@@ -58,6 +58,4 @@ RUN chown -R ma7lola:ma7lola /var/log /run
 
 USER ma7lola
 
-RUN composer install --optimize-autoloader --no-dev
-
 EXPOSE 9000

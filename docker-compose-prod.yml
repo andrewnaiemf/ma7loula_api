@@ -4,9 +4,9 @@ services:
         build:
             context: .
             dockerfile: docker/production/php/Dockerfile
-        args:
-            - UID=${UID}
-            - GID=${GID}
+            args:
+                - UID=${UID}
+                - GID=${GID}
         image: ma7lola:production-latest
         container_name: app
         restart: unless-stopped

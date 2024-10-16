@@ -3,6 +3,7 @@
 namespace Modules\Client\Controllers;
 
 use App\Models\ProductCategory;
+use Modules\Client\Requests\CarParts\ListProductsByIdRequest;
 use Modules\Client\Requests\CarParts\ListProductsRequest;
 use Modules\Client\Requests\CarParts\ProductsDetailsRequest;
 use Modules\Client\Resources\ProductResource;
@@ -15,6 +16,11 @@ class ProductController extends Controller
     public function __construct(private ProductService $productService) {}
 
     public function list(ListProductsRequest $request)
+    {
+        return $this->listResponse('products', $this->productService->listProducts($request), new ProductResource([]));
+    }
+
+    public function listById(ListProductsByIdRequest $request)
     {
         return $this->listResponse('products', $this->productService->listProducts($request), new ProductResource([]));
     }

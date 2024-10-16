@@ -2,7 +2,9 @@
 namespace Modules\Core\Controllers;
 
 use Illuminate\Http\Request;
+use Modules\Core\Requests\Car\GetCarByIdRequest;
 use Modules\Core\Requests\Car\ListCarsRequest;
+use Modules\Core\Requests\Car\ListCarYearsRequest;
 use Modules\Core\Requests\Car\ListModelsRequest;
 use Modules\Core\Services\CarService;
 
@@ -25,11 +27,22 @@ class CarController extends Controller{
         ]);
     }
 
+    public function listYears(ListCarYearsRequest $request){
+        return $this->successResponse([
+            'years' => $this->carService->listYears($request)
+        ]);
+    }
+
     public function listCars(ListCarsRequest $request){
         return $this->successResponse([
             'cars' => $this->carService->listCars($request)
         ]);
     }
 
+    public function getCarById(GetCarByIdRequest $request){
+        return $this->successResponse([
+            'car' => $this->carService->getCarById($request)
+        ]);
+    }
     
 }

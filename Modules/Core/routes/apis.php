@@ -34,8 +34,10 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1')->group(function(){
 
     Route::prefix('car')->group(function(){
         Route::controller(CarController::class)->group(function(){
+            Route::get('getById', 'getCarById');
             Route::get('brands', 'listBrands');
             Route::get('models', 'listModels');
+            Route::get('years', 'listYears');
             Route::get('list', 'listCars');
         });
     });

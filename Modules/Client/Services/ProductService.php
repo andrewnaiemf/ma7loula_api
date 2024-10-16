@@ -3,6 +3,7 @@
 namespace Modules\Client\Services;
 
 use App\Models\Product;
+use Illuminate\Http\Request;
 use Modules\Client\Requests\CarParts\ListProductsRequest;
 use Modules\Client\Requests\CarParts\ProductsDetailsRequest;
 use Modules\Client\Resources\ProductResource;
@@ -11,16 +12,24 @@ use Modules\Core\Exceptions\HttpErrorException;
 
 class ProductService
 {
-    public function listProducts(ListProductsRequest $request)
+    public function listProducts(Request $request)
     {
         $products = Product::with(['brand', 'category', 'vendor', 'thumbnail', 'allMedia'])
-            ->where('status', 'published')
-            ->whereHas('cars', function ($q) use ($request) {
+            ->where('status', 'published');
+
+        if ($request->input('category_id')) {
+            $products->whereHas('cars', function ($q) use ($request) {
                 $q->where('id', $request->input('car_id'));
             });
+        }
 
         if ($request->input('category_id')) {
             $products->where('category_id', $request->input('category_id'));
+        }
+
+        if ($request->input('product_ids')) {
+            $ids = $request->input('product_ids');
+            $products->whereIn('id', $ids);
         }
 
         if ($request->input('name')) {
@@ -38,7 +47,7 @@ class ProductService
             ->first();
 
 
-        if(!$product){
+        if (!$product) {
             throw new HttpErrorException("Not found");
         }
 

@@ -28,6 +28,7 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1/client')->group(functi
         Route::get('products', [ProductController::class, 'list']);
         Route::get('product-details', [ProductController::class, 'productDetails']);
         Route::post('available-slots', [OrderController::class, 'getAvailableSlots']);
+        Route::post('list-by-id', [ProductController::class, 'listById']);
 
         Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('order-details', [OrderController::class, 'orderDetails']);
@@ -46,6 +47,7 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1/client')->group(functi
         Route::get('products', [TireController::class, 'listTires']);
         Route::get('product-details', [ProductController::class, 'productDetails']);
         Route::post('available-slots', [OrderController::class, 'getAvailableSlots']);
+        Route::post('list-by-id', [ProductController::class, 'listById']);
         
         Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('order-details', [OrderController::class, 'orderDetails']);
@@ -63,6 +65,7 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1/client')->group(functi
         Route::get('products', [BatteryController::class, 'listBatteries']);
         Route::get('product-details', [ProductController::class, 'productDetails']);
         Route::post('available-slots', [OrderController::class, 'getAvailableSlots']);
+        Route::post('list-by-id', [ProductController::class, 'listById']);
         
         Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('order-details', [OrderController::class, 'orderDetails']);

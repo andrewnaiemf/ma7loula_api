@@ -39,7 +39,7 @@ services:
         volumes:
             - ma7lola-storage:/var/www/html/storage
         ports:
-            - "8081:80"
+            - "80:80"
         networks:
             - ma7lola
         depends_on:

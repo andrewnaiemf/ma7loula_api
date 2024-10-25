@@ -9,4 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Vendor extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected $fillable = ['name', 'user_id', 'type', 'lat', 'lon', 'tax_no', 'company_licence_no', 'company_licence_expire_date', 'address', 'id_image', 'company_licence_image'];
 }

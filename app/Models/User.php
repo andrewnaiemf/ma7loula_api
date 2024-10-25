@@ -70,4 +70,8 @@ class User extends Authenticatable
     public function defaultCar(){
         return $this->client->defaultCar();
     }
+
+    public function vendor(){
+        return $this->hasOne(Vendor::class);
+    }
 }

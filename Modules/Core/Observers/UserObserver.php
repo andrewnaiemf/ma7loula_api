@@ -12,21 +12,7 @@ class UserObserver
      */
     public function created(User $user): void
     {
-        $appToRole = [
-            'client' => 'client'
-        ];
-
-        $app = request()->header('app');
-
-        $user->attachRole($appToRole[$app] ?? 'client');
-
-        switch ($app) {
-            case 'client':
-                Client::create([
-                    'user_id' => $user->id
-                ]);
-                break;
-        }
+        //
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Modules\Core\Services;
 
+use App\Models\Client;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -25,29 +26,38 @@ use Throwable;
 
 class AuthService
 {
-
-    private function userWithAuthToken($user): JsonResource{
+    public function userWithAuthToken($user): JsonResource{
         $user->auth_token = $user->createToken('auth', ['*'], Carbon::now()->addDays(120))->plainTextToken;
         return $this->UserResource($user);
     }
 
-    private function UserResource($user): JsonResource{
+    public function UserResource($user): JsonResource{
         return new ClientAuthResource($user);
+    }
+
+    public function createUser(Request $request): User{
+        $data = $request->all(['name', 'email', 'phone', 'password']);
+
+        return User::create($data);
     }
 
     public function sendOTP(string $phone): int
     {
         $otp = rand(100000, 999999);
-        Cache::put('otp_for_'.$phone, $otp, 60);
+        Cache::put('otp_for_'.$phone, $otp, 60*10);
         SendSMSJob::dispatch($phone, $otp);
         return $otp;
     }
 
     public function register(RegisterRequest $request): JsonResource
     {
-        $data = $request->all(['name', 'email', 'phone', 'password']);
+        $user = $this->createUser($request);
 
-        $user = User::create($data);
+        $user->attachRole('client');
+
+        Client::create([
+            'user_id' => $user->id
+        ]);
 
         return $this->userWithAuthToken($user);
     }
@@ -74,16 +84,10 @@ class AuthService
         return $this->UserResource($user);
     }
 
-    public function login(LoginRequest $request): JsonResource | Throwable
+    public function login(LoginRequest $request, $role = 'client'): JsonResource | Throwable
     {
         $phone = $request->input('phone');
         $password = $request->input('password');
-
-        $appToRole = [
-            'client' => 'client'
-        ];
-
-        $role = $appToRole[request()->header('app')];
 
         if (
             Auth::attempt([

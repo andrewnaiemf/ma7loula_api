@@ -86,7 +86,7 @@ class Order extends Model
      */
     public function vendors()
     {
-        return $this->belongsToMany(Vendor::class, 'order_vendors')->withTimestamps()->withPivot(['status', 'has_service', 'delivery_time', 'products_price', 'services_price', 'tax_price', 'delivery_price', 'total', 'worker_id']);
+        return $this->belongsToMany(Vendor::class, 'order_vendors')->withTimestamps()->withPivot(['id', 'status', 'has_service', 'delivery_time', 'products_price', 'services_price', 'tax_price', 'delivery_price', 'total', 'worker_id']);
     }
 
     public function statuses()
@@ -99,11 +99,13 @@ class Order extends Model
         return $val ? Carbon::createFromFormat('Y-m-d H:i:s', $val) : null;
     }
 
-    public function rate(){
+    public function rate()
+    {
         return $this->hasOne(OrderRate::class);
     }
 
-    public function winch_order(){
+    public function winch_order()
+    {
         return $this->hasOne(OrderWinch::class);
     }
 }

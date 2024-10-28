@@ -17,23 +17,16 @@ class ProductSeeder extends Seeder
     {
         $products = collect([]);
 
-        /* $products = Product::factory(20)->create([
+        $products = Product::factory(20)->create([
             'brand_id' => 3,
             'category_id' => 5
-        ]); */
-
-        /* $battries = Product::factory(20)->create([
-            'brand_id' => 1,
-            'category_id' => 1,
-            'status' => 'published'
-        ]); */
+        ]);
 
         $tires = Product::factory(20)->create([
             'brand_id' => 2,
             'category_id' => 2,
             'status' => 'published'
         ]);
-
 
         foreach($tires as $tire){
             ProductAttribute::create([

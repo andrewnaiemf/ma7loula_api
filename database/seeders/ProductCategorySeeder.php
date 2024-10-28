@@ -24,6 +24,18 @@ class ProductCategorySeeder extends Seeder
 
         $categories = [
             [
+                'id' => 1,
+                'name' => 'البطاريات',
+                'parent_id' => null,
+                'media_id' => $media->id
+            ],
+            [
+                'id' => 2,
+                'name' => 'الإطارات',
+                'parent_id' => null,
+                'media_id' => $media->id
+            ],
+            [
                 'id' => 3,
                 'name' => 'العفشة',
                 'parent_id' => null,

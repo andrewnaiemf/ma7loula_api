@@ -30,6 +30,7 @@ class CreateOrderRequest extends PublicRequest
                 ],
                 'delivery_time' => [
                     'required_if:delivery_type,scheduled',
+                    'nullable',
                     'after:today',
                     'date_format:Y-m-d H:i'
                 ],

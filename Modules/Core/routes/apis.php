@@ -48,6 +48,7 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1')->group(function(){
             Route::get('models', 'listModels');
             Route::get('years', 'listYears');
             Route::get('list', 'listCars');
+            Route::get('list-all', 'listAllCars');
         });
     });
 

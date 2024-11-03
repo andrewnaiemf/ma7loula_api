@@ -6,6 +6,7 @@ use Modules\Core\Requests\Car\GetCarByIdRequest;
 use Modules\Core\Requests\Car\ListCarsRequest;
 use Modules\Core\Requests\Car\ListCarYearsRequest;
 use Modules\Core\Requests\Car\ListModelsRequest;
+use Modules\Core\Resources\CarResource;
 use Modules\Core\Services\CarService;
 
 class CarController extends Controller{
@@ -43,6 +44,10 @@ class CarController extends Controller{
         return $this->successResponse([
             'car' => $this->carService->getCarById($request)
         ]);
+    }
+
+    public function listAllCars(){
+        return $this->listResponse('cars', $this->carService->listAllCars(), new CarResource([]));
     }
     
 }

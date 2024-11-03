@@ -15,6 +15,8 @@ Route::middleware(ValidateHeaders::class)->group(function () {
             Route::post('register', 'register');
             Route::post('login', 'login');
 
+            Route::get('product/list-brands/{type}', 'listBrands');
+
             Route::middleware(['auth:sanctum'])->group(function () {
                 Route::get('user-profile', 'userProfile');
 

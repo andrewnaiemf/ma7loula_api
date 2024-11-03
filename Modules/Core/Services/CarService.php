@@ -60,4 +60,9 @@ class CarService
         $car = Car::with(['brand', 'brand.model'])->find($request->input('car_id'));
         return new CarResource($car);
     }
+
+    public function listAllCars()
+    {
+        return Car::with(['brand', 'brand.model']);
+    }
 }

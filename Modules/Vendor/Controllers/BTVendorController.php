@@ -2,6 +2,7 @@
 
 namespace Modules\Vendor\Controllers;
 
+use Illuminate\Http\Request;
 use Modules\Vendor\Resources\BT\Vendor\ProductResource;
 use Modules\Core\Controllers\Controller;
 use Modules\Core\Requests\Auth\LoginRequest;
@@ -118,6 +119,12 @@ class BTVendorController extends Controller {
             $this->vendorService->listOrders($request,  $status),
             new OrderResource([])
         );
+    }
+
+    public function listBrands(Request $request, $type){
+        return $this->successResponse([
+            'brands' => $this->vendorService->listBrands($type)
+        ]);
     }
 
     public function orderDetails(OrdersDetailsRequest $request){

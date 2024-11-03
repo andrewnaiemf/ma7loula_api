@@ -6,12 +6,14 @@ use App\Models\Media;
 use App\Models\Order;
 use App\Models\OrderVendor;
 use App\Models\Product;
+use App\Models\ProductBrand;
 use App\Models\User;
 use App\Models\Vendor;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Modules\Client\Resources\ProductBrandResource;
 use Modules\Core\Services\AuthService;
 use Modules\Vendor\Requests\BT\Vendor\AddBatteryRequest;
 use Modules\Vendor\Requests\BT\Vendor\AddTireRequest;
@@ -252,6 +254,21 @@ class BTVendorService extends AuthService
         }
 
         return $orders;
+    }
+
+    public function listBrands($type)
+    {
+        $brands = ProductBrand::query();
+
+        if($type == 'batteries'){
+            $brands->where('product_category_id', Product::BatteriesCategory);
+        }else{
+            $brands->where('product_category_id', Product::TiresCategory);
+        }
+
+        $brands = $brands->get();
+
+        return ProductBrandResource::collection($brands);
     }
 
     public function orderDetails(OrdersDetailsRequest $request){

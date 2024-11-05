@@ -41,7 +41,7 @@ class TireService
             ->select('product_attributes.value')
             ->join('product_attributes', 'product_attributes.product_id', 'products.id')
             ->where('products.brand_id', $request->input('brand_id'))
-            ->where('product_attributes.key', 'tire-type')
+            ->where('product_attributes.key', 'tire_type')
             ->groupBy('product_attributes.value')
             ->get()
             ->pluck('value');

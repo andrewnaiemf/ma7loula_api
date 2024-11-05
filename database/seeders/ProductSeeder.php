@@ -31,7 +31,7 @@ class ProductSeeder extends Seeder
         foreach($tires as $tire){
             ProductAttribute::create([
                 'product_id' => $tire->id,
-                'key' => 'tire-type',
+                'key' => 'tire_type',
                 'value' => ['normal', 'flat'][rand(0,1)],
             ]);
 

@@ -56,7 +56,7 @@ class TireService
             ->where('products.brand_id', $request->input('brand_id'))
             ->whereHas('attrs', function ($q) use ($request) {
                 $q
-                    ->where('key', 'tire-type')
+                    ->where('key', 'tire_type')
                     ->where('value', $request->input('type'));
             })
             ->join('product_attributes as height', function ($q) {

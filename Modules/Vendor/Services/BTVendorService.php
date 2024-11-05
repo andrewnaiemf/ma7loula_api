@@ -157,7 +157,7 @@ class BTVendorService extends AuthService
         $product = $this->addProduct($request, Product::TiresCategory);
 
         //handle product attributes
-        $product_attributes = $request->all(['sku', 'year_of_manufacture', 'height', 'width', 'length']);
+        $product_attributes = $request->all(['sku', 'year_of_manufacture', 'height', 'width', 'length', 'tire_type']);
         $this->handleProductAttributes($product, $product_attributes);
 
         return new ProductResource($product);

@@ -6,7 +6,7 @@ use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use Modules\Core\Requests\Request;
 use Illuminate\Validation\Rule;
-
+use Modules\Core\Exceptions\HttpErrorException;
 
 class AddTireRequest extends Request
 {
@@ -40,5 +40,29 @@ class AddTireRequest extends Request
         ];
 
         return $rules;
+    }
+
+    protected function passedValidation(): void
+    {
+        $errors = [];
+        if ($this->input('images')) {
+            foreach ($this->input('images') as $image) {
+                $filename = $image;
+                $ext = pathinfo($filename, PATHINFO_EXTENSION);
+                $path = storage_path('app/public/temp/' . $filename);
+
+                if (!file_exists($path)) {
+                    $errors['images'][] = 'file required';
+                }
+
+                if (!in_array($ext, ['png', 'jpg', 'jpeg'])) {
+                    $errors['images'][] = 'unsupproted file extension';
+                }
+            }
+
+            if (count($errors)) {
+                throw new HttpErrorException('Images error', $errors, 422);
+            }
+        }
     }
 }

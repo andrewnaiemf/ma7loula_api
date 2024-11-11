@@ -1,15 +1,16 @@
 <?php
 
-namespace Modules\Client\Resources\WinchOrder;
+namespace Modules\Client\Resources\EmergencyOrder;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Modules\Client\Resources\OrderRateResource;
 use Modules\Client\Resources\OrderStatusesResource;
 use Modules\Client\Resources\UserCarResource;
+use Modules\Client\Resources\WinchOrder\WinchOrderWorkerResource;
 use Modules\Core\Resources\SimpleResource;
 
-class WinchOrderResource extends JsonResource
+class EmergencyOrderResource extends JsonResource
 {
 
     /**
@@ -21,6 +22,8 @@ class WinchOrderResource extends JsonResource
     {
         return [
             'id'                    => $this->id,
+            'description'           => $this->emergency_order->description,
+            'record'                => $this->emergency_order->record ? url($this->emergency_order->record) : null,
             'status'                => $this->status,
             'payment_method'        => $this->payment_method,
             'services_price'        => (float) $this->services_price,
@@ -29,16 +32,8 @@ class WinchOrderResource extends JsonResource
             'userCar'               => new UserCarResource($this->user_car),
             'statueses'             => OrderStatusesResource::collection($this->statuses),
             'rate'                  => new OrderRateResource($this->rate),
-            'from_lat'              => (float) $this->winch_order->from_lat,
-            'from_lon'              => $this->winch_order->from_lon,
-            'to_lat'                => $this->winch_order->to_lat,
-            'to_lon'                => $this->winch_order->to_lon,
-            'from_text'             => $this->winch_order->from_text,
-            'to_text'               => $this->winch_order->to_text,
-            'distance_in_meters'    => $this->winch_order->distance_in_meters,
-            'duration_in_minutes'   => $this->winch_order->duration_in_minutes,
-            'vendor'                => new SimpleResource($this->winch_order->vendor),
-            'worker'               => new WinchOrderWorkerResource($this->winch_order->worker),
+            'vendor'                => new SimpleResource($this->emergency_order->vendor),
+            'worker'               => new WinchOrderWorkerResource($this->emergency_order->worker),
         ];
     }
 }

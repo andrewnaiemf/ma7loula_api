@@ -9,4 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class OrderEmergency extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected $fillable = ['order_id', 'vendor_id', 'worker_id', 'description', 'record'];
 }

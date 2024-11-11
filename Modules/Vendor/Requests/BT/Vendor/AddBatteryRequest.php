@@ -5,6 +5,7 @@ namespace Modules\Vendor\Requests\BT\Vendor;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Modules\Core\Exceptions\HttpErrorException;
 use Modules\Core\Requests\Request;
 
 class AddBatteryRequest extends Request
@@ -35,5 +36,29 @@ class AddBatteryRequest extends Request
         ];
 
         return $rules;
+    }
+
+    protected function passedValidation(): void
+    {
+        $errors = [];
+        if ($this->input('images')) {
+            foreach ($this->input('images') as $image) {
+                $filename = $image;
+                $ext = pathinfo($filename, PATHINFO_EXTENSION);
+                $path = storage_path('app/public/temp/' . $filename);
+
+                if (!file_exists($path)) {
+                    $errors['images'][] = 'file required';
+                }
+
+                if (!in_array($ext, ['png', 'jpg', 'jpeg'])) {
+                    $errors['images'][] = 'unsupproted file extension';
+                }
+            }
+
+            if (count($errors)) {
+                throw new HttpErrorException('Images error', $errors, 422);
+            }
+        }
     }
 }

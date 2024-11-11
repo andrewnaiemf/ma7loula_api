@@ -155,14 +155,23 @@ class OrderService
         return $res;
     }
 
-    public function updateOrderStatus(UpdateOrderStatusRequest $request)
+    public function updateOrderStatus(UpdateOrderStatusRequest $request, string $type = 'car-parts')
     {
         $order = Order::find($request->input('id'));
         $order->update([
             'status' => $request->input('status')
         ]);
 
-        return new OrderResource($order);
+        switch ($type) {
+            case 'winch':
+                $res =  new WinchOrderResource($order);
+                break;
+
+            default:
+                $res = new OrderResource($order);
+        }
+
+        return $res;
     }
 
     public function getAvailableSlots(GetAvailableSoltsRequest $request)

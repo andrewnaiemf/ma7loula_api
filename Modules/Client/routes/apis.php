@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\Client\Controllers\AddressController;
 use Modules\Client\Controllers\BatteryController;
 use Modules\Client\Controllers\CarController;
+use Modules\Client\Controllers\EmergencyOrderController;
 use Modules\Client\Controllers\HomeController;
 use Modules\Client\Controllers\OrderController;
 use Modules\Client\Controllers\ProductCategoryController;
@@ -85,8 +86,38 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1/client')->group(functi
 
 
         Route::middleware(['auth:sanctum'])->group(function () {
-            Route::post('create-order', [WinchOrderController::class, 'createOrder']);
             Route::get('list-offers', [WinchOrderController::class, 'listWinchDriversOffers']);
+            Route::post('accept-offer', [WinchOrderController::class, 'acceptOffer']);
+
+            Route::post('create-order', [WinchOrderController::class, 'createOrder']);
+            Route::get('order-details', [WinchOrderController::class, 'orderDetails']);
+            Route::get('list-orders', [WinchOrderController::class, 'list']);
+            Route::post('update-order-status', [WinchOrderController::class, 'updateOrderStatus']);
+
+            Route::post('rate-order', [OrderController::class, 'rateOrder']);
+
+        });
+    });
+
+    Route::prefix("emergency")->group(function () {
+
+        //devloping only
+        // Route::get('send-fake-offer', [WinchOrderController::class, 'sendFakeOffer']);
+
+
+        Route::middleware(['auth:sanctum'])->group(function () {
+            Route::post('create-order', [EmergencyOrderController::class, 'createOrder']);
+/* 
+
+            Route::get('list-offers', [WinchOrderController::class, 'listWinchDriversOffers']);
+            Route::post('accept-offer', [WinchOrderController::class, 'acceptOffer']);
+
+            Route::get('order-details', [WinchOrderController::class, 'orderDetails']);
+            Route::get('list-orders', [WinchOrderController::class, 'list']);
+            Route::post('update-order-status', [WinchOrderController::class, 'updateOrderStatus']);
+
+            Route::post('rate-order', [OrderController::class, 'rateOrder']); */
+
         });
     });
 

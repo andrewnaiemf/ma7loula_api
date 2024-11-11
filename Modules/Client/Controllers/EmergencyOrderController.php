@@ -4,45 +4,38 @@ namespace Modules\Client\Controllers;
 
 use Illuminate\Http\Request;
 use Modules\Client\Requests\CarParts\CarPartsOrderDetailsRequest;
+use Modules\Client\Requests\EmergencyOrder\CreateEmergencyOrderRequest;
 use Modules\Client\Requests\Order\UpdateOrderStatusRequest;
 use Modules\Client\Requests\WinchOrder\AcceptWinchOffer;
 use Modules\Client\Requests\WinchOrder\CalculateWinchOrderPriceRequest;
 use Modules\Client\Requests\WinchOrder\CreateWinchOrderRequest;
 use Modules\Client\Requests\WinchOrder\ListWinchDriverOffers;
 use Modules\Client\Resources\WinchOrder\WinchOrderListResource;
-use Modules\Client\Services\WinchOrderService;
+use Modules\Client\Services\EmergencyOrderService;
 use Modules\Core\Controllers\Controller;
 
-class WinchOrderController extends Controller
+class EmergencyOrderController extends Controller
 {
 
-    public function __construct(private WinchOrderService $orderService) {}
+    public function __construct(private EmergencyOrderService $orderService) {}
 
-
-    public function calculatePrice(CalculateWinchOrderPriceRequest $request)
-    {
-        return $this->successResponse([
-            'price' => $this->orderService->calculatePrice($request)
-        ]);
-    }
-
-    public function list(){
+   /*  public function list(){
         return $this->listResponse(
             'orders',
             $this->orderService->listWinchOrders(),
             new WinchOrderListResource([])
         );
-    }
+    } */
 
-    public function createOrder(CreateWinchOrderRequest $request)
+    public function createOrder(CreateEmergencyOrderRequest $request)
     {
         return $this->successResponse([
-            'order' => $this->orderService->createWinchOrder($request)
+            'order' => $this->orderService->createEmergencyOrder($request)
         ]);
     }
 
 
-    public function orderDetails(CarPartsOrderDetailsRequest $request)
+   /*  public function orderDetails(CarPartsOrderDetailsRequest $request)
     {
         return $this->successResponse([
             'order' => $this->orderService->orderDetails($request, 'winch')
@@ -60,9 +53,7 @@ class WinchOrderController extends Controller
     public function sendFakeOffer(Request $request)
     {
         $offers = $this->orderService->sendFakeOffer($request);
-        return $this->successResponse(/* [
-            'offers' => $offers
-        ] */);
+        return $this->successResponse();
     }
 
     public function listWinchDriversOffers(ListWinchDriverOffers $request)
@@ -76,5 +67,5 @@ class WinchOrderController extends Controller
         return $this->successResponse([
             'order' => $this->orderService->acceptOffer($request)
         ]);
-    }
+    } */
 }

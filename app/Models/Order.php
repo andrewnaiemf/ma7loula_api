@@ -108,4 +108,13 @@ class Order extends Model
     {
         return $this->hasOne(OrderWinch::class);
     }
+
+    public function emergency_order()
+    {
+        return $this->hasOne(OrderEmergency::class);
+    }
+
+    public function workers(){
+        return $this->belongsToMany(Worker::class, 'order_vendors')->withTimestamps()->withPivot(['id', 'status', 'has_service', 'delivery_time', 'products_price', 'services_price', 'tax_price', 'delivery_price', 'total', 'worker_id']);
+    }
 }

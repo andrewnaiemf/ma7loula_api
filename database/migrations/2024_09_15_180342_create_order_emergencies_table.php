@@ -17,14 +17,13 @@ return new class extends Migration
             $table->unsignedBigInteger('order_id')->index();
             $table->foreign('order_id')->references('id')->on('orders')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->unsignedBigInteger('vendor_id')->index();
+            $table->unsignedBigInteger('vendor_id')->nullable()->index();
             $table->foreign('vendor_id')->references('id')->on('vendors')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->unsignedBigInteger('worker_id')->index();
+            $table->unsignedBigInteger('worker_id')->nullable()->index();
             $table->foreign('worker_id')->references('id')->on('workers')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->unsignedBigInteger('media_id')->nullable();
-            $table->foreign('media_id')->references('id')->on('media')->onUpdate('cascade')->onDelete('cascade');
+            $table->string('record')->nullable();
 
             $table->mediumText('description')->nullable();
 

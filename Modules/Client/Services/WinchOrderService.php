@@ -115,7 +115,7 @@ class WinchOrderService extends OrderService
         return $offers;
     }
 
-    public function listWinchDriversOffers(ListWinchDriverOffers $request)
+    public function listWinchDriversOffers(Request $request)
     {
         $key = 'winch_order_offers_' . $request->input('order_id');
 
@@ -153,5 +153,27 @@ class WinchOrderService extends OrderService
         );
 
         return new WinchOrderResource($order);
+    }
+
+    public function rejectOffer(AcceptWinchOffer $request){
+        $cache_key = 'winch_order_offers_' . $request->input('order_id');
+
+        if (Cache::has($cache_key)) {
+            $offers = Cache::get($cache_key);
+        } else {
+            $offers = [];
+        }
+
+        foreach($offers as $key => $offer){
+            if($offer->id == $request->input('worker_id')){
+                unset($offers[$key]);
+            }
+        }
+
+        $offers = json_decode(json_encode($offers));
+
+        Cache::put($cache_key, $offers, 60);
+
+        return $this->listWinchDriversOffers($request);
     }
 }

@@ -77,4 +77,10 @@ class WinchOrderController extends Controller
             'order' => $this->orderService->acceptOffer($request)
         ]);
     }
+
+    public function rejectOffer(AcceptWinchOffer $request){
+        return $this->successResponse([
+            'offers' => $this->orderService->rejectOffer($request)
+        ]);
+    }
 }

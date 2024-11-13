@@ -22,8 +22,8 @@ class EmergencyOrderResource extends JsonResource
     {
         return [
             'id'                    => $this->id,
-            'description'           => $this->emergency_order->description,
-            'record'                => $this->emergency_order->record ? url($this->emergency_order->record) : null,
+            'description'           => $this->emergency_order?->description,
+            'record'                => $this->emergency_order?->record ? url($this->emergency_order->record) : null,
             'status'                => $this->status,
             'payment_method'        => $this->payment_method,
             'services_price'        => (float) $this->services_price,
@@ -32,8 +32,8 @@ class EmergencyOrderResource extends JsonResource
             'userCar'               => new UserCarResource($this->user_car),
             'statueses'             => OrderStatusesResource::collection($this->statuses),
             'rate'                  => new OrderRateResource($this->rate),
-            'vendor'                => new SimpleResource($this->emergency_order->vendor),
-            'worker'               => new WinchOrderWorkerResource($this->emergency_order->worker),
+            'vendor'                => new SimpleResource($this->emergency_order?->vendor),
+            'worker'               => new WinchOrderWorkerResource($this->emergency_order?->worker),
         ];
     }
 }

@@ -15,6 +15,7 @@ use Modules\Client\Requests\Order\CreateOrderRequest;
 use Modules\Client\Requests\Order\GetAvailableSoltsRequest;
 use Modules\Client\Requests\Order\RateOrderRequest;
 use Modules\Client\Requests\Order\UpdateOrderStatusRequest;
+use Modules\Client\Resources\EmergencyOrder\EmergencyOrderResource;
 use Modules\Client\Resources\OrderCarPartsResource;
 use Modules\Client\Resources\OrderResource;
 use Modules\Client\Resources\WinchOrder\WinchOrderResource;
@@ -129,6 +130,10 @@ class OrderService
                 $with = [];
                 break;
 
+            case 'emergency':
+                $with = [];
+                break;
+
             default:
                 $with = [
                     'products',
@@ -143,16 +148,9 @@ class OrderService
             ->where('id', $request->input('id'))
             ->first();
 
-        switch ($type) {
-            case 'winch':
-                $res =  new WinchOrderResource($order);
-                break;
+        
 
-            default:
-                $res = new OrderResource($order);
-        }
-
-        return $res;
+        return $this->returnResource($order, $type);
     }
 
     public function updateOrderStatus(UpdateOrderStatusRequest $request, string $type = 'car-parts')
@@ -162,9 +160,19 @@ class OrderService
             'status' => $request->input('status')
         ]);
 
+        return $this->returnResource($order, $type);
+    }
+
+    public function returnResource($order, $type){
+        $res = new OrderResource($order);
+
         switch ($type) {
             case 'winch':
                 $res =  new WinchOrderResource($order);
+                break;
+
+            case 'emergency':
+                $res =  new EmergencyOrderResource($order);
                 break;
 
             default:

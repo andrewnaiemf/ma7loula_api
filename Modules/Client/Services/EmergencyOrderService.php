@@ -78,10 +78,10 @@ class EmergencyOrderService extends OrderService
     }
 
     //for developing
-    /* public function sendFakeOffer(Request $request)
+    public function sendFakeOffer(Request $request)
     {
-        $key = 'winch_order_offers_' . $request->input('order_id');
-        $worker = Worker::with(['vendor', 'user'])->where('type', 'winch')->inRandomOrder()->first();
+        $key = 'emergency_order_offers_' . $request->input('order_id');
+        $worker = Worker::with(['vendor', 'user'])->where('type', 'emergency')->inRandomOrder()->first();
 
         $new_offer = (new WinchOrderOfferResource($worker));
 
@@ -99,10 +99,12 @@ class EmergencyOrderService extends OrderService
 
         return $offers;
     }
+    
+    
 
-    public function listWinchDriversOffers(ListWinchDriverOffers $request)
+    public function listOffers(Request $request)
     {
-        $key = 'winch_order_offers_' . $request->input('order_id');
+        $key = 'emergency_order_offers_' . $request->input('order_id');
 
         if (Cache::has($key)) {
             $offers = Cache::get($key);
@@ -131,6 +133,50 @@ class EmergencyOrderService extends OrderService
             ]
         );
 
-        return new WinchOrderResource($order);
-    } */
+        OrderEmergency::where('order_id', $order->id)->update([
+            'vendor_id' => $request->input('vendor_id'),
+            'worker_id' => $request->input('worker_id')
+        ]);
+
+        return new EmergencyOrderResource($order);
+    }
+
+    public function rejectOffer(AcceptWinchOffer $request){
+        $cache_key = 'emergency_order_offers_' . $request->input('order_id');
+
+        if (Cache::has($cache_key)) {
+            $offers = Cache::get($cache_key);
+        } else {
+            $offers = [];
+        }
+
+        foreach($offers as $key => $offer){
+            if($offer->id == $request->input('worker_id')){
+                unset($offers[$key]);
+            }
+        }
+
+        $offers = json_decode(json_encode($offers));
+
+        Cache::put($cache_key, $offers, 60);
+
+        return $this->listOffers($request);
+    }
+
+    public function listEmergencyOrders(){
+        $orders = Order::with([
+            'vendors',
+            'workers',
+            'user_car',
+            'user_car.car',
+            'user_car.car.model',
+            'user_car.car.model.brand',
+            'user_car.client',
+        ])
+            ->where('user_id', $this->user->id)
+            ->where('type', 'emergency')
+            ->orderBy('id', 'desc');
+
+        return $orders;
+    }
 }

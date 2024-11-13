@@ -83,40 +83,31 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1/client')->group(functi
 
         //devloping only
         Route::get('send-fake-offer', [WinchOrderController::class, 'sendFakeOffer']);
-
-
         Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('list-offers', [WinchOrderController::class, 'listWinchDriversOffers']);
             Route::post('accept-offer', [WinchOrderController::class, 'acceptOffer']);
-
             Route::post('create-order', [WinchOrderController::class, 'createOrder']);
             Route::get('order-details', [WinchOrderController::class, 'orderDetails']);
             Route::get('list-orders', [WinchOrderController::class, 'list']);
             Route::post('update-order-status', [WinchOrderController::class, 'updateOrderStatus']);
-
             Route::post('rate-order', [OrderController::class, 'rateOrder']);
-
+            Route::post('reject-offer', [WinchOrderController::class, 'rejectOffer']);
         });
     });
 
     Route::prefix("emergency")->group(function () {
 
         //devloping only
-        // Route::get('send-fake-offer', [WinchOrderController::class, 'sendFakeOffer']);
-
-
+        Route::get('send-fake-offer', [EmergencyOrderController::class, 'sendFakeOffer']);
         Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('create-order', [EmergencyOrderController::class, 'createOrder']);
-/* 
-
-            Route::get('list-offers', [WinchOrderController::class, 'listWinchDriversOffers']);
-            Route::post('accept-offer', [WinchOrderController::class, 'acceptOffer']);
-
-            Route::get('order-details', [WinchOrderController::class, 'orderDetails']);
-            Route::get('list-orders', [WinchOrderController::class, 'list']);
-            Route::post('update-order-status', [WinchOrderController::class, 'updateOrderStatus']);
-
-            Route::post('rate-order', [OrderController::class, 'rateOrder']); */
+            Route::get('order-details', [EmergencyOrderController::class, 'orderDetails']);
+            Route::post('update-order-status', [EmergencyOrderController::class, 'updateOrderStatus']);
+            Route::get('list-offers', [EmergencyOrderController::class, 'listOffers']);
+            Route::post('accept-offer', [EmergencyOrderController::class, 'acceptOffer']);
+            Route::post('reject-offer', [EmergencyOrderController::class, 'rejectOffer']);
+            Route::get('list-orders', [EmergencyOrderController::class, 'list']);
+            Route::post('rate-order', [OrderController::class, 'rateOrder']); 
 
         });
     });

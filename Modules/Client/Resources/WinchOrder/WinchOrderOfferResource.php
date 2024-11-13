@@ -21,6 +21,7 @@ class WinchOrderOfferResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $user->name,
+            'phione' => $user->phone,
             'car_plate_number' => $this->car_plate_number,
             'expires_at' => (Carbon::now()->addMinute())->format('Y-m-d H:i:s'),
             'vendor' => new SimpleResource($this->vendor)

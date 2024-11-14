@@ -71,7 +71,10 @@ class EmergencyOrderService extends OrderService
         OrderEmergency::create([
             'order_id' => $order->id,
             'description' => $request->input('description'),
-            'record' => $record
+            'record' => $record,
+            'lat' => $request->input('lat'),
+            'lon' => $request->input('lon'),
+            'location' => $request->input('location')
         ]);
 
         return new EmergencyOrderResource($order);
@@ -158,7 +161,7 @@ class EmergencyOrderService extends OrderService
 
         $offers = json_decode(json_encode($offers));
 
-        Cache::put($cache_key, $offers, 60);
+        Cache::put($cache_key, (array) $offers, 60);
 
         return $this->listOffers($request);
     }

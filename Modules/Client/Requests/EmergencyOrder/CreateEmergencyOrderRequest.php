@@ -13,7 +13,7 @@ class CreateEmergencyOrderRequest extends PublicRequest
         return [
             'user_car_id' => ['required', Rule::exists('user_car', 'id')->whereNull('deleted_at')],
             'description' => ['nullable', 'string'],
-            'record' => ['nullable', 'string'],
+            'record' => ['nullable', 'string']
         ];
     }
 

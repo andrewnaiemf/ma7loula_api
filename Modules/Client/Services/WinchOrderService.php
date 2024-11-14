@@ -172,7 +172,7 @@ class WinchOrderService extends OrderService
 
         $offers = json_decode(json_encode($offers));
 
-        Cache::put($cache_key, $offers, 60);
+        Cache::put($cache_key,(array) $offers, 60);
 
         return $this->listWinchDriversOffers($request);
     }

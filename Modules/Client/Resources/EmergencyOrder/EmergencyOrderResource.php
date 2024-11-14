@@ -23,6 +23,9 @@ class EmergencyOrderResource extends JsonResource
         return [
             'id'                    => $this->id,
             'description'           => $this->emergency_order?->description,
+            'lat'                   => $this->emergency_order?->lat,
+            'lon'                   => $this->emergency_order?->lon,
+            'location'              => $this->emergency_order?->location,
             'record'                => $this->emergency_order?->record ? url($this->emergency_order->record) : null,
             'status'                => $this->status,
             'payment_method'        => $this->payment_method,

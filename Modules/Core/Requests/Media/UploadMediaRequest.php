@@ -10,7 +10,7 @@ class UploadMediaRequest extends PublicRequest
     public function rules(): array{
         return [
             'media' => ['required', 'array'],
-            'media.*' => [File::image()->max(12 * 1024)]
+            'media.*' => ['required']
         ];
     }
 }

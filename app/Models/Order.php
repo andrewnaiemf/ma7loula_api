@@ -104,6 +104,11 @@ class Order extends Model
         return $this->hasOne(OrderRate::class);
     }
 
+    public function vendor_orders()
+    {
+        return $this->hasMany(OrderVendor::class);
+    }
+
     public function winch_order()
     {
         return $this->hasOne(OrderWinch::class);

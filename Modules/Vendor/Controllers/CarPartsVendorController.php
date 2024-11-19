@@ -2,23 +2,21 @@
 
 namespace Modules\Vendor\Controllers;
 
-use Illuminate\Http\Request;
 use Modules\Vendor\Resources\BT\Vendor\ProductResource;
 use Modules\Core\Controllers\Controller;
 use Modules\Core\Requests\Auth\LoginRequest;
-use Modules\Vendor\Requests\BT\Vendor\AddBatteryRequest;
-use Modules\Vendor\Requests\BT\Vendor\AddTireRequest;
 use Modules\Vendor\Requests\BT\Vendor\ListOrdersRequest;
 use Modules\Vendor\Requests\BT\Vendor\ListProductsRequest;
 use Modules\Vendor\Requests\BT\Vendor\OrdersDetailsRequest;
 use Modules\Vendor\Requests\BT\Vendor\ProductDetailsRequest;
 use Modules\Vendor\Requests\BT\Vendor\RegisterRequest;
+use Modules\Vendor\Requests\CarParts\AddProductRequest;
 use Modules\Vendor\Requests\CarParts\UpdateOrderStatusRequest;
 use Modules\Vendor\Resources\BT\Vendor\OrderResource;
-use Modules\Vendor\Services\BTVendorService;
+use Modules\Vendor\Services\CarPartsVendorService;
 
-class BTVendorController extends Controller {
-    public function __construct(private BTVendorService $vendorService)
+class CarPartsVendorController extends Controller {
+    public function __construct(private CarPartsVendorService $vendorService)
     {
         
     }
@@ -81,7 +79,7 @@ class BTVendorController extends Controller {
 
     public function login(LoginRequest $request){
         return $this->successResponse([
-            'user' => $this->vendorService->login($request, 'vendor_bt')
+            'user' => $this->vendorService->login($request, 'vendor_cp')
         ]);
     }
 
@@ -92,19 +90,13 @@ class BTVendorController extends Controller {
         ]);
     }
 
-    public function listProducts(ListProductsRequest $request, $type, $status){
-        return $this->listResponse('products', $this->vendorService->listProducts($type, $status), new ProductResource([]));
+    public function listProducts(ListProductsRequest $request, $status){
+        return $this->listResponse('products', $this->vendorService->listProducts($status), new ProductResource([]));
     }
 
-    public function addBattery(AddBatteryRequest $request){
+    public function addProduct(AddProductRequest $request){
         return $this->successResponse([
-            'battery' => $this->vendorService->addBattery($request)
-        ]);
-    }
-
-    public function addTire(AddTireRequest $request){
-        return $this->successResponse([
-            'tire' => $this->vendorService->addTire($request)
+            'product' => $this->vendorService->addProduct($request)
         ]);
     }
 
@@ -120,12 +112,6 @@ class BTVendorController extends Controller {
             $this->vendorService->listOrders($request,  $status),
             new OrderResource([])
         );
-    }
-
-    public function listBrands(Request $request, $type){
-        return $this->successResponse([
-            'brands' => $this->vendorService->listBrands($type)
-        ]);
     }
 
     public function orderDetails(OrdersDetailsRequest $request){

@@ -26,7 +26,7 @@ use Modules\Vendor\Resources\BT\Vendor\OrderResource;
 use Modules\Vendor\Resources\BT\Vendor\ProductResource;
 use Modules\Vendor\Resources\BT\Vendor\VendorUserResource;
 
-class BTVendorService extends AuthService
+class CarPartsVendorService extends AuthService
 {
     public function __construct(private AuthService $authService) {}
 
@@ -59,7 +59,7 @@ class BTVendorService extends AuthService
 
         //create user
         $user =  User::create($data);
-        $user->attachRole('vendor_bt');
+        $user->attachRole('vendor_cp');
         $user->auth_token = $user->createToken('auth', ['*'], Carbon::now()->addDays(120))->plainTextToken;
 
         //handle media
@@ -82,7 +82,7 @@ class BTVendorService extends AuthService
         Vendor::create([
             'name' => $request->input('company_name'),
             'user_id' => $user->id,
-            'type' => 'bt-vendor',
+            'type' => 'car-parts',
             'lat' => $request->input('lat'),
             'lon' => $request->input('lon'),
             'tax_no' => $request->input('tax_no'),
@@ -96,7 +96,7 @@ class BTVendorService extends AuthService
         return new VendorUserResource($user);
     }
 
-    public function listProducts($type, $status)
+    public function listProducts($status)
     {
         $vendor_id = Auth::user()->vendor->id;
 
@@ -105,23 +105,16 @@ class BTVendorService extends AuthService
             ->where('vendor_id', $vendor_id)
             ->orderBy('id', 'desc');
 
-        if ($type) {
-            $category_id = ($type == 'batteries') ? Product::BatteriesCategory : Product::TiresCategory;
-            $products->where('category_id', $category_id);
-        }
-
         return $products;
     }
 
 
-    public function addProduct(Request $request, $category_id): Product
+    public function addProduct(Request $request): Product
     {
-        $product_data = $request->all(['name', 'description', 'brand_id', 'price', 'price_before_discount', 'stock']);
+        $product_data = $request->all(['name', 'description', 'brand_id', 'price', 'price_before_discount', 'stock', 'category_id', 'status']);
 
         $product_data = array_merge($product_data, [
-            'vendor_id' => Auth::user()->vendor->id,
-            'category_id' => $category_id,
-            'status' => 'pending',
+            'vendor_id' => Auth::user()->vendor->id
         ]);
 
         $product = Product::create($product_data);
@@ -138,44 +131,6 @@ class BTVendorService extends AuthService
 
         //create product
         return $product;
-    }
-
-
-    public function addBattery(AddBatteryRequest $request)
-    {
-        $product = $this->addProduct($request, Product::BatteriesCategory);
-
-        //handle product attributes
-        $product_attributes = $request->all(['sku', 'year_of_manufacture', 'voltage']);
-        $this->handleProductAttributes($product, $product_attributes);
-
-        return new ProductResource($product);
-    }
-
-
-    public function addTire(AddTireRequest $request)
-    {
-        $product = $this->addProduct($request, Product::TiresCategory);
-
-        //handle product attributes
-        $product_attributes = $request->all(['sku', 'year_of_manufacture', 'height', 'width', 'length', 'tire_type']);
-        $this->handleProductAttributes($product, $product_attributes);
-
-        return new ProductResource($product);
-    }
-
-    private function handleProductAttributes(Product $product, array $product_attributes)
-    {
-        $attr = [];
-        foreach ($product_attributes as $key => $val) {
-            if ($val)
-                $attr[] = [
-                    'product_id' => $product->id,
-                    'key' => $key,
-                    'value' => $val
-                ];
-        }
-        $product->attrs()->createMany($attr);
     }
 
     private function handleMedia(Product $product, array $images, string $default_image = null)
@@ -255,21 +210,6 @@ class BTVendorService extends AuthService
         }
 
         return $orders;
-    }
-
-    public function listBrands($type)
-    {
-        $brands = ProductBrand::query();
-
-        if($type == 'batteries'){
-            $brands->where('product_category_id', Product::BatteriesCategory);
-        }else{
-            $brands->where('product_category_id', Product::TiresCategory);
-        }
-
-        $brands = $brands->get();
-
-        return ProductBrandResource::collection($brands);
     }
 
     public function orderDetails(OrdersDetailsRequest $request){

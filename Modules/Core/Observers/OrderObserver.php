@@ -3,6 +3,7 @@
 namespace Modules\Core\Observers;
 
 use App\Models\Order;
+use App\Models\OrderVendor;
 
 class OrderObserver
 {
@@ -25,6 +26,12 @@ class OrderObserver
             $order->statuses()->create([
                 'status' => $order->status
             ]);
+
+            OrderVendor::withoutEvents(function () use ($order) {
+                $order->vendor_orders()->update([
+                    'status' =>  $order->status
+                ]);
+            });
         }
     }
 

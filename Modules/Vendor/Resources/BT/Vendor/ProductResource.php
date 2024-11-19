@@ -30,6 +30,7 @@ class ProductResource extends JsonResource
             'thumbnail' => new MediaResource($this->thumbnail),
             'images' => MediaResource::collection($this->allMedia),
             'brand' => new SimpleResource($this->brand),
+            'category' => new SimpleResource($this->category),
             'attributes' => ProductAttributeResource::collection($this->attrs),
         ];
     }

@@ -49,7 +49,7 @@ class AuthService
         return $otp;
     }
 
-    public function register(RegisterRequest $request): JsonResource
+    public function register(Request $request): JsonResource
     {
         $user = $this->createUser($request);
 

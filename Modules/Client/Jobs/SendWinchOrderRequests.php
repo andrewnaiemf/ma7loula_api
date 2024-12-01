@@ -1,0 +1,63 @@
+<?php
+
+namespace Modules\Client\Jobs;
+
+use App\Models\OrderWinch;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Modules\Client\Resources\WinchOrder\WinchOrderResource;
+
+class SendWinchOrderRequests implements ShouldQueue
+{
+    use Queueable;
+
+    /**
+     * Create a new job instance.
+     */
+    public function __construct(private OrderWinch $order)
+    {
+        //
+    }
+
+    /**
+     * Execute the job.
+     */
+    public function handle(): void
+    {
+        $winch_order = $this->order;
+        $order = $winch_order->order;
+        $currentLatitude = $winch_order->from_lat;
+        $currentLongitude = $winch_order->from_lon;
+
+        $workers = DB::table('workers')
+            ->selectRaw('*, ( 6371 * acos( cos( radians(?) ) * cos( radians( lat ) ) * cos( radians( lon ) - radians(?) ) + sin( radians(?) ) * sin( radians( lat ) ) ) ) AS distance', [$currentLatitude, $currentLongitude, $currentLatitude])
+            ->having('distance', '<', 10)
+            ->orderBy('distance', 'asc')
+            ->get();
+
+        $order_res = new WinchOrderResource($order);
+
+        foreach ($workers as $worker) {
+            $worker_key = 'winch_request_' . $worker->id;
+            $order_key = 'winch_request_' . $worker->id . '_' . $order->id;
+
+            if (!Cache::has($order_key)) {
+
+                if (Cache::has($worker_key)) {
+                    $requests_keys = Cache::get($worker_key);
+                } else {
+                    $requests_keys = [];
+                }
+
+                array_unshift($requests_keys, $order_key);
+                Cache::put($order_key, $order_res, 60);
+                Cache::put($worker_key, $requests_keys, 60);
+            }
+        }
+    }
+}

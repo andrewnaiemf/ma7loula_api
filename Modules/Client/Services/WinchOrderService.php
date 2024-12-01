@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Modules\Client\Jobs\SendWinchOrderRequests;
 use Modules\Client\Requests\WinchOrder\AcceptWinchOffer;
 use Modules\Client\Requests\WinchOrder\CalculateWinchOrderPriceRequest;
 use Modules\Client\Requests\WinchOrder\CreateWinchOrderRequest;
@@ -74,7 +75,7 @@ class WinchOrderService extends OrderService
         /** @var Order $order */
         $order = Order::create($order_data);
 
-        OrderWinch::create([
+        $orderWinch = OrderWinch::create([
             'order_id' => $order->id,
             'distance_in_meters' => $request->input('distance_in_meters'),
             'duration_in_minutes' => $request->input('duration_in_minutes'),
@@ -89,90 +90,96 @@ class WinchOrderService extends OrderService
 
         ]);
 
+        SendWinchOrderRequests::dispatch($orderWinch);
+
         return new WinchOrderResource($order);
     }
 
     //for developing
     public function sendFakeOffer(Request $request)
     {
-        $key = 'winch_order_offers_' . $request->input('order_id');
         $worker = Worker::with(['vendor', 'user'])->where('type', 'winch')->inRandomOrder()->first();
 
-        $new_offer = (new WinchOrderOfferResource($worker));
+        $order_offers_keys = 'winch_order_offers_' . $request->input('order_id');
+        $worker_offer_key = 'winch_order_offers_' . $request->input('order_id') . '_' . $worker->id;
 
-        if (Cache::has($key)) {
-            $offers = Cache::get($key);
-        } else {
-            $offers = [];
+        if (!Cache::has($worker_offer_key)) {
+
+            $new_offer = (new WinchOrderOfferResource($worker));
+
+            if (Cache::has($order_offers_keys)) {
+                $offers = Cache::get($order_offers_keys);
+            } else {
+                $offers = [];
+            }
+
+            array_unshift($offers, $worker_offer_key);
+
+            Cache::put($order_offers_keys, $offers, 60);
+            Cache::put($worker_offer_key, $new_offer, 60);
         }
-
-        array_unshift($offers, $new_offer);
-
-        $offers = json_decode(json_encode($offers));
-
-        Cache::put($key, $offers, 60);
 
         return $offers;
     }
 
     public function listWinchDriversOffers(Request $request)
     {
-        $key = 'winch_order_offers_' . $request->input('order_id');
+        $order_offers_keys = 'winch_order_offers_' . $request->input('order_id');
 
-        if (Cache::has($key)) {
-            $offers = Cache::get($key);
-            return array_values(array_filter($offers, function ($item) {
-                return Carbon::createFromFormat('Y-m-d H:i:s', $item->expires_at) > Carbon::now();
-            }));
+        $offers = [];
+
+        if (Cache::has($order_offers_keys)) {
+            $offers_keys = Cache::get($order_offers_keys);
+            foreach ($offers_keys as $offer_key) {
+                if (Cache::has($offer_key)) {
+                    $offers[] = Cache::get($offer_key);
+                }
+            }
         }
 
-        return [];
+        return $offers;
     }
 
     public function acceptOffer(AcceptWinchOffer $request)
     {
         $order = Order::find($request->input('order_id'));
+        $accepted_offer_key = 'accepted_winch_request_' . $request->input('worker_id');
 
-        OrderWinch::where('order_id', $order->id)->update([
-            'vendor_id' => $request->input('vendor_id'),
-            'worker_id' => $request->input('worker_id')
-        ]);
-
-        OrderVendor::create(
-            [
-                'order_id' => $request->input('order_id'),
+        if(!Cache::has($accepted_offer_key)){
+            OrderWinch::where('order_id', $order->id)->update([
                 'vendor_id' => $request->input('vendor_id'),
-                'worker_id' => $request->input('worker_id'),
-                'status' => $order->status,
-                'products_price' => $order->products_price,
-                'services_price' => $order->services_price,
-                'tax_price' => $order->tax_price,
-                'delivery_price' => $order->delivery_price,
-                'total' => $order->total,
-            ]
-        );
+                'worker_id' => $request->input('worker_id')
+            ]);
 
-        return new WinchOrderResource($order);
+            OrderVendor::create(
+                [
+                    'order_id' => $request->input('order_id'),
+                    'vendor_id' => $request->input('vendor_id'),
+                    'worker_id' => $request->input('worker_id'),
+                    'status' => $order->status,
+                    'products_price' => $order->products_price,
+                    'services_price' => $order->services_price,
+                    'tax_price' => $order->tax_price,
+                    'delivery_price' => $order->delivery_price,
+                    'total' => $order->total,
+                ]
+            );
+
+            $order_res = new WinchOrderResource($order);
+
+            Cache::put($accepted_offer_key, $order_res, 60*10);
+
+            return $order_res;
+        }
+
+        return null;
     }
 
-    public function rejectOffer(AcceptWinchOffer $request){
-        $cache_key = 'winch_order_offers_' . $request->input('order_id');
+    public function rejectOffer(AcceptWinchOffer $request)
+    {
+        $worker_offer_key = 'winch_order_offers_' . $request->input('order_id') . '_' . $request->input('worker_id');
 
-        if (Cache::has($cache_key)) {
-            $offers = Cache::get($cache_key);
-        } else {
-            $offers = [];
-        }
-
-        foreach($offers as $key => $offer){
-            if($offer->id == $request->input('worker_id')){
-                unset($offers[$key]);
-            }
-        }
-
-        $offers = json_decode(json_encode($offers));
-
-        Cache::put($cache_key,(array) $offers, 60);
+        Cache::forget($worker_offer_key);
 
         return $this->listWinchDriversOffers($request);
     }

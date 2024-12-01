@@ -15,16 +15,16 @@ services:
             - ma7lola
         command: /usr/bin/supervisord -c /etc/supervisor/conf.d/php-fpm.conf
 
-    # workers:
-    #     image: ma7lola:dev-latest
-    #     restart: unless-stopped
-    #     volumes:
-    #         - ./:/var/www/html
-    #     networks:
-    #         - ma7lola
-    #     depends_on:
-    #         - app
-    #     command: /usr/bin/supervisord -c /etc/supervisor/conf.d/laravel-worker.conf
+    workers:
+        image: ma7lola:dev-latest
+        restart: unless-stopped
+        volumes:
+            - ./:/var/www/html
+        networks:
+            - ma7lola
+        depends_on:
+            - app
+        command: /usr/bin/supervisord -c /etc/supervisor/conf.d/laravel-worker.conf
 
     # websocket:
     #     image: ma7lola:dev-latest

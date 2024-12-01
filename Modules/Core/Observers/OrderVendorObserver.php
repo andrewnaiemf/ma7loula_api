@@ -11,9 +11,7 @@ class OrderVendorObserver
      */
     public function created(OrderVendor $order): void
     {
-        $order->statuses()->create([
-            'status' => 'new'
-        ]);
+        //
     }
 
     /**

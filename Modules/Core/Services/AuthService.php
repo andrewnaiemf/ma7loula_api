@@ -38,6 +38,8 @@ class AuthService
     public function createUser(Request $request): User{
         $data = $request->all(['name', 'email', 'phone', 'password']);
 
+        $data['role_id'] = 2;
+
         return User::create($data);
     }
 
@@ -52,8 +54,6 @@ class AuthService
     public function register(Request $request): JsonResource
     {
         $user = $this->createUser($request);
-
-        $user->attachRole('client');
 
         Client::create([
             'user_id' => $user->id
@@ -93,13 +93,18 @@ class AuthService
             Auth::attempt([
                 'phone' => $phone,
                 'password' => $password,
-                fn(Builder $query) => $query->whereHas('roles', function ($q) use ($role) 
+                fn(Builder $query) => $query->whereHas('role', function ($q) use ($role) 
                 {
                     $q->where('code', $role);
                 })
             ])
         ) {
-            $user = User::where('phone', $phone)->first();
+            $user = User::where('phone', $phone)
+            ->whereHas('role', function ($q) use ($role){
+                $q->where('code', $role);
+            })
+            ->first();
+
             if ($user) {
                 return $this->userWithAuthToken($user);
             }
@@ -113,7 +118,18 @@ class AuthService
         $phone = $request->input('phone');
         $password = $request->input('password');
 
-        $user = User::where('phone', $phone)->first();
+        $header_to_role_id = [
+            'client' => 2,
+            'vendor_cp' => 3,
+            'vendor_bt' => 4,
+            'winch_driver' => 5,
+            'worker_bt' => 6,
+            'worker_sos' => 7
+        ];
+
+        $user = User::where('phone', $phone)
+        ->where('role_id', $header_to_role_id[$request->header('App')])
+        ->first();
         $user->update([
             'password' => $password
         ]);

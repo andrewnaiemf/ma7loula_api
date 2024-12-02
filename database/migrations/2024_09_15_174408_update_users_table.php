@@ -13,9 +13,12 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('phone')->after('email')->index();
+            $table->unsignedBigInteger('role_id')->after('phone')->index();
             $table->softDeletes();
-            $table->unique(['email', 'deleted_at']);
-            $table->unique(['phone', 'deleted_at']);
+            $table->unique(['email', 'role_id', 'deleted_at']);
+            $table->unique(['phone', 'role_id', 'deleted_at']);
+            $table->index(['role_id', 'phone']);
+            $table->dropUnique('email');
         });
     }
 

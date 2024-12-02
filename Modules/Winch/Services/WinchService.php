@@ -54,10 +54,10 @@ class WinchService extends AuthService
     public function register(Request $request): JsonResource
     {
         $data = $request->all(['name', 'email', 'phone', 'password']);
+        $data['role_id'] = 5;
 
         //create user
         $user =  User::create($data);
-        $user->attachRole('winch_driver');
         $user->auth_token = $user->createToken('auth', ['*'], Carbon::now()->addDays(120))->plainTextToken;
 
         $attributes = [];

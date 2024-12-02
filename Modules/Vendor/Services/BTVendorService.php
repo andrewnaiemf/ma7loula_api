@@ -56,10 +56,10 @@ class BTVendorService extends AuthService
     public function registerVendor(RegisterRequest $request): JsonResource
     {
         $data = $request->all(['name', 'email', 'phone', 'password']);
+        $data['role_id'] = 4;
 
         //create user
         $user =  User::create($data);
-        $user->attachRole('vendor_bt');
         $user->auth_token = $user->createToken('auth', ['*'], Carbon::now()->addDays(120))->plainTextToken;
 
         //handle media

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Winch\Requests;
+namespace Modules\Vendor\Requests\CarParts;
 
 use Illuminate\Validation\Rule;
 use Modules\Core\Exceptions\HttpErrorException;
@@ -10,33 +10,29 @@ class RegisterRequest extends AuthRegisterRequest
 {
     public function rules(): array
     {
-        return array_merge([
-
-            'email' => ['required', 'email', Rule::unique('users', 'email')->where('role_id', 5)->whereNull('deleted_at')],
-            'phone' => ['required', 'digits:11', 'starts_with:011,010,012,015', Rule::unique('users', 'phone')->where('role_id', 5)->whereNull('deleted_at')],
+        $rules =  array_merge([
+            'email' => ['required', 'email', Rule::unique('users', 'email')->where('role_id', 3)->whereNull('deleted_at')],
+            'phone' => ['required', 'digits:11', 'starts_with:011,010,012,015', Rule::unique('users', 'phone')->where('role_id', 3)->whereNull('deleted_at')],
 
             'id_image' => ['required', 'string'],
-            'criminal_record_image' => ['required', 'string'],
-            
-            'driver_licence_image' => ['required', 'string'],
-            'driver_licence_no' => ['required', 'numeric'],
-            'driver_licence_expire_date' => ['date_format:Y-m-d', 'string'],
-
-            'car_licence_image' => ['required', 'string'],
-            'car_licence_no' => ['required', 'numeric'],
-            'car_licence_expire_date' => ['date_format:Y-m-d', 'string'],
-
-            'vendor_id' => ['required', Rule::exists('vendors', 'id')->where('type', 'winch')->whereNull('deleted_at')],
-            'car_plate_no' => ['required', 'string'],
-            
+            'company_name' => ['required', 'string'],
+            'company_licence_image' => ['required', 'string'],
+            'company_licence_no' => ['required', 'string'],
+            'company_licence_expire_date' => ['required', 'date_format:Y-m-d'],
+            'tax_no' => ['required', 'string'],
+            'lat' => ['required', 'numeric'],
+            'lon' => ['required', 'numeric'],
+            'address' => ['required', 'string'],
         ], parent::rules());
+
+        return $rules;
     }
 
     protected function passedValidation(): void
     {
         parent::passedValidation();
 
-        $files_keys = ['id_image', 'criminal_record_image', 'car_licence_image', 'driver_licence_image'];
+        $files_keys = ['id_image', 'company_licence_image'];
         $errors = [];
         foreach ($files_keys as $key) {
             if ($this->input($key)) {

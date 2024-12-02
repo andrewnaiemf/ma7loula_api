@@ -17,7 +17,7 @@ use Modules\Core\Traits\Auth\HasRoles;
 #[ObservedBy([UserObserver::class])]
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, SoftDeletes, smsable, HasRoles, HasApiTokens;
+    use HasFactory, Notifiable, SoftDeletes, smsable, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -29,7 +29,8 @@ class User extends Authenticatable
         'email',
         'phone',
         'password',
-        'default_address_id'
+        'default_address_id',
+        'role_id'
     ];
 
     /**
@@ -77,5 +78,9 @@ class User extends Authenticatable
 
     public function vendor(){
         return $this->hasOne(Vendor::class);
+    }
+
+    public function role(){
+        return $this->belongsTo(Role::class);
     }
 }

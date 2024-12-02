@@ -3,25 +3,20 @@
 namespace Modules\Vendor\Services;
 
 use App\Models\Media;
-use App\Models\Order;
 use App\Models\OrderVendor;
 use App\Models\Product;
-use App\Models\ProductBrand;
 use App\Models\User;
 use App\Models\Vendor;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Modules\Client\Resources\ProductBrandResource;
 use Modules\Core\Services\AuthService;
-use Modules\Vendor\Requests\BT\Vendor\AddBatteryRequest;
-use Modules\Vendor\Requests\BT\Vendor\AddTireRequest;
 use Modules\Vendor\Requests\BT\Vendor\ListOrdersRequest;
 use Modules\Vendor\Requests\BT\Vendor\OrdersDetailsRequest;
 use Modules\Vendor\Requests\BT\Vendor\ProductDetailsRequest;
-use Modules\Vendor\Requests\BT\Vendor\RegisterRequest;
 use Modules\Vendor\Requests\CarParts\UpdateOrderStatusRequest;
+use Modules\Vendor\Requests\CarParts\RegisterRequest;
 use Modules\Vendor\Resources\BT\Vendor\OrderResource;
 use Modules\Vendor\Resources\BT\Vendor\ProductResource;
 use Modules\Vendor\Resources\BT\Vendor\VendorUserResource;
@@ -56,10 +51,10 @@ class CarPartsVendorService extends AuthService
     public function registerVendor(RegisterRequest $request): JsonResource
     {
         $data = $request->all(['name', 'email', 'phone', 'password']);
+        $data['role_id'] = 3;
 
         //create user
         $user =  User::create($data);
-        $user->attachRole('vendor_cp');
         $user->auth_token = $user->createToken('auth', ['*'], Carbon::now()->addDays(120))->plainTextToken;
 
         //handle media

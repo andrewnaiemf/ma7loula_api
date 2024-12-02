@@ -4,9 +4,9 @@ namespace Modules\Core\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use Modules\Client\Requests\Auth\RegisterRequest;
 use Modules\Core\Controllers\Controller;
 use Modules\Core\Requests\Auth\LoginRequest;
-use Modules\Core\Requests\Auth\RegisterRequest;
 use Modules\Core\Requests\Auth\ResetPasswordOTPRequest;
 use Modules\Core\Requests\Auth\ResetPasswordRequest;
 use Modules\Core\Requests\Auth\SendOTPRequest;

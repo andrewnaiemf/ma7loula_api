@@ -9,9 +9,9 @@ use Modules\Vendor\Requests\BT\Vendor\ListOrdersRequest;
 use Modules\Vendor\Requests\BT\Vendor\ListProductsRequest;
 use Modules\Vendor\Requests\BT\Vendor\OrdersDetailsRequest;
 use Modules\Vendor\Requests\BT\Vendor\ProductDetailsRequest;
-use Modules\Vendor\Requests\BT\Vendor\RegisterRequest;
 use Modules\Vendor\Requests\CarParts\AddProductRequest;
 use Modules\Vendor\Requests\CarParts\UpdateOrderStatusRequest;
+use Modules\Vendor\Requests\CarParts\RegisterRequest;
 use Modules\Vendor\Resources\BT\Vendor\OrderResource;
 use Modules\Vendor\Services\CarPartsVendorService;
 

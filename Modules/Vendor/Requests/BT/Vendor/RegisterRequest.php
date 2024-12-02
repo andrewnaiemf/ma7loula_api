@@ -3,6 +3,7 @@
 namespace Modules\Vendor\Requests\BT\Vendor;
 
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Modules\Core\Exceptions\HttpErrorException;
 use Modules\Core\Requests\Auth\RegisterRequest as AuthRegisterRequest;
 
@@ -11,6 +12,9 @@ class RegisterRequest extends AuthRegisterRequest
     public function rules(): array
     {
         return array_merge([
+            'email' => ['required', 'email', Rule::unique('users', 'email')->where('role_id', 4)->whereNull('deleted_at')],
+            'phone' => ['required', 'digits:11', 'starts_with:011,010,012,015', Rule::unique('users', 'phone')->where('role_id', 4)->whereNull('deleted_at')],
+
             'id_image' => ['required', 'string'],
             'company_name' => ['required', 'string'],
             'company_licence_image' => ['required', 'string'],

@@ -6,7 +6,7 @@ class AppToRole
 {
     private const APP = [
         'client' => 2,
-        'cp-vendor' => 3,
+        'car-parts-vendor' => 3,
         'bt-vendor' => 4,
         'winch-driver' => 5,
         'bt-worker' => 6,

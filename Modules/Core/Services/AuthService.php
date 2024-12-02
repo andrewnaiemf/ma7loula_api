@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Modules\Client\Resources\ClientAuthResource;
 use Modules\Core\Exceptions\HttpErrorException;
+use Modules\Core\Helpers\AppToRole;
 use Modules\Core\Plugins\SMS\SendSMSJob;
 use Modules\Core\Requests\Auth\LoginRequest;
 use Modules\Core\Requests\Auth\RegisterRequest;
@@ -118,17 +119,8 @@ class AuthService
         $phone = $request->input('phone');
         $password = $request->input('password');
 
-        $header_to_role_id = [
-            'client' => 2,
-            'vendor_cp' => 3,
-            'vendor_bt' => 4,
-            'winch_driver' => 5,
-            'worker_bt' => 6,
-            'worker_sos' => 7
-        ];
-
         $user = User::where('phone', $phone)
-        ->where('role_id', $header_to_role_id[$request->header('App')])
+        ->where('role_id', AppToRole::getRoleId($request->header('App')))
         ->first();
         $user->update([
             'password' => $password

@@ -6,15 +6,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Core\Traits\HasMedia;
+use Modules\Core\Traits\Translatable;
 
 class Product extends BaseModel
 {
-    use HasFactory, SoftDeletes, HasMedia;
+    use HasFactory, SoftDeletes, HasMedia, Translatable;
 
     public const BatteriesCategory = 1;
     public const TiresCategory = 2;
 
     protected $fillable = ['name', 'description', 'category_id', 'brand_id', 'vendor_id', 'price', 'price_before_discount', 'stock', 'status', 'default_media_id'];
+
+    public $translatable = ['name', 'description'];
 
     public function cars()
     {

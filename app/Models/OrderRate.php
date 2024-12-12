@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class OrderRate extends Model
+
+class OrderRate extends BaseModel
 {
     use HasFactory;
 

@@ -22,6 +22,8 @@ return new class extends Migration
 
             $table->unique(['translatable_type', 'translatable_id', 'key', 'lang']);
             $table->index(['translatable_type', 'translatable_id', 'key', 'lang']);
+            $table->index(['translatable_type', 'translatable_id', 'lang']);
+            $table->index(['translatable_type', 'translatable_id']);
         });
     }
 

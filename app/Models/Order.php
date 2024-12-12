@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Modules\Core\Observers\OrderObserver;
@@ -35,7 +35,7 @@ use Modules\Core\Observers\OrderObserver;
  */
 
 #[ObservedBy([OrderObserver::class])]
-class Order extends Model
+class Order extends BaseModel
 {
     use HasFactory, SoftDeletes;
 

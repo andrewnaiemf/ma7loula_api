@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class WorkerAvailabilty extends Model
+
+class WorkerAvailabilty extends BaseModel
 {
     use HasFactory;
 }

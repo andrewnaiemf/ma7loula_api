@@ -10,7 +10,7 @@ class Worker extends BaseModel
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['user_id', 'vendor_id', 'car_plate_number', 'type'];
+    protected $fillable = ['user_id', 'vendor_id', 'car_plate_number', 'type', 'balance'];
 
     public function user(){
         return $this->belongsTo(User::class);

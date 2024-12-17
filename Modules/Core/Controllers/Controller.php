@@ -18,13 +18,21 @@ class Controller
     }
 
 
-    public function listResponse($key, Builder $query, JsonResource $resource = null, string $message = null): JsonResponse
+    public function listResponse($key, Builder $query, JsonResource $resource = null, string $message = null, array $extra_data = []): JsonResponse
     {
         $page = max(request('page', 1), 1);
         $perPage = min(max(request('perPage', 20), 1), 100);
 
         $data = (clone $query)->take($perPage)->skip(($page - 1) * $perPage)->get();
         $total = (clone $query)->count();
+
+        $data = [
+            $key => $resource ? $resource::collection($data) : $data
+        ];
+
+        if(count($extra_data) > 0){
+            $data = array_merge($extra_data, $data);
+        }
 
         return response()->json([
             'message' => $message ?? "",
@@ -34,9 +42,7 @@ class Controller
                 'perPage' => (int) $perPage,
                 'total' => $total
             ],
-            'data' => [
-                $key => $resource ? $resource::collection($data) : $data
-            ]
+            'data' => $data
         ]);
     }
 }

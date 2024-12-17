@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Core\Middleware\ValidateHeaders;
+use Modules\Winch\Controllers\WalletController;
 use Modules\Winch\Controllers\WinchController;
 
 Route::middleware(ValidateHeaders::class)->group(function () {
@@ -30,5 +31,15 @@ Route::middleware(ValidateHeaders::class)->group(function () {
                 });
             });
         });
+
+        Route::prefix('wallet')
+            ->controller(WalletController::class)
+            ->middleware(['auth:sanctum'])
+            ->group(function () {
+                Route::get('/transactions', 'listTransactions');
+                Route::get('/withdraw/methods', 'listWithdrawMethods');
+                Route::get('/withdraw', 'listWithdrawRequests');
+                Route::post('/withdraw', 'createWithdrawRequests');
+            });
     });
 });

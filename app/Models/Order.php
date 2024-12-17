@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Modules\Core\Observers\OrderObserver;
+use Modules\Winch\Observers\OrderObserver as WichOrderObserver;
 
 /**
  *    @var int $id;
@@ -34,7 +35,7 @@ use Modules\Core\Observers\OrderObserver;
  *    @var Product $products[];
  */
 
-#[ObservedBy([OrderObserver::class])]
+#[ObservedBy([OrderObserver::class, WichOrderObserver::class])]
 class Order extends BaseModel
 {
     use HasFactory, SoftDeletes;

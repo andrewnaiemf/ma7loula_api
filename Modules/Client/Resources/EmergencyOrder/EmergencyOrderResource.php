@@ -36,7 +36,8 @@ class EmergencyOrderResource extends JsonResource
             'statueses'             => OrderStatusesResource::collection($this->statuses),
             'rate'                  => new OrderRateResource($this->rate),
             'vendor'                => new SimpleResource($this->emergency_order?->vendor),
-            'worker'               => new WinchOrderWorkerResource($this->emergency_order?->worker),
+            'worker'                => new WinchOrderWorkerResource($this->emergency_order?->worker),
+            'services'              => EmergencyOrderServiceResource::collection($this->services)
         ];
     }
 }

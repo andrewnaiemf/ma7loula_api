@@ -5,22 +5,17 @@ namespace Modules\Client\Services;
 use App\Models\Order;
 use App\Models\OrderEmergency;
 use App\Models\OrderVendor;
-use App\Models\OrderWinch;
 use App\Models\User;
 use App\Models\UserCar;
 use App\Models\Worker;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Modules\Client\Jobs\SendEmergencyOrderRequests;
 use Modules\Client\Requests\EmergencyOrder\CreateEmergencyOrderRequest;
 use Modules\Client\Requests\WinchOrder\AcceptWinchOffer;
-use Modules\Client\Requests\WinchOrder\CalculateWinchOrderPriceRequest;
-use Modules\Client\Requests\WinchOrder\CreateWinchOrderRequest;
-use Modules\Client\Requests\WinchOrder\ListWinchDriverOffers;
 use Modules\Client\Resources\EmergencyOrder\EmergencyOrderResource;
 use Modules\Client\Resources\WinchOrder\WinchOrderOfferResource;
-use Modules\Client\Resources\WinchOrder\WinchOrderResource;
 
 class EmergencyOrderService extends OrderService
 {
@@ -68,7 +63,7 @@ class EmergencyOrderService extends OrderService
             }
         }
 
-        OrderEmergency::create([
+        $orderEmergency = OrderEmergency::create([
             'order_id' => $order->id,
             'description' => $request->input('description'),
             'record' => $record,
@@ -76,6 +71,8 @@ class EmergencyOrderService extends OrderService
             'lon' => $request->input('lon'),
             'location' => $request->input('location')
         ]);
+
+        SendEmergencyOrderRequests::dispatch($orderEmergency);
 
         return new EmergencyOrderResource($order);
     }
@@ -102,49 +99,63 @@ class EmergencyOrderService extends OrderService
 
         return $offers;
     }
-    
-    
+
+
 
     public function listOffers(Request $request)
     {
         $key = 'emergency_order_offers_' . $request->input('order_id');
 
+        $offers = [];
+
         if (Cache::has($key)) {
-            $offers = Cache::get($key);
-            return array_values(array_filter($offers, function ($item) {
-                return Carbon::createFromFormat('Y-m-d H:i:s', $item->expires_at) > Carbon::now();
-            }));
+            $offers_keys = Cache::get($key);
+            foreach ($offers_keys as $offer_key) {
+                if (Cache::has($offer_key)) {
+                    $offers[] = Cache::get($offer_key);
+                }
+            }
         }
 
-        return [];
+        return $offers;
     }
 
-    public function acceptOffer(AcceptWinchOffer $request){
+    public function acceptOffer(AcceptWinchOffer $request)
+    {
         $order = Order::find($request->input('order_id'));
+        $accepted_offer_key = 'accepted_emergency_request_' . $request->input('worker_id');
 
-        OrderVendor::create(
-            [
-                'order_id' => $request->input('order_id'),
+        if (!Cache::has($accepted_offer_key)) {
+            OrderEmergency::where('order_id', $order->id)->update([
                 'vendor_id' => $request->input('vendor_id'),
-                'worker_id' => $request->input('worker_id'),
-                'status' => $order->status,
-                'products_price' => $order->products_price,
-                'services_price' => $order->services_price,
-                'tax_price' => $order->tax_price,
-                'delivery_price' => $order->delivery_price,
-                'total' => $order->total,
-            ]
-        );
+                'worker_id' => $request->input('worker_id')
+            ]);
 
-        OrderEmergency::where('order_id', $order->id)->update([
-            'vendor_id' => $request->input('vendor_id'),
-            'worker_id' => $request->input('worker_id')
-        ]);
+            OrderVendor::create(
+                [
+                    'order_id' => $request->input('order_id'),
+                    'vendor_id' => $request->input('vendor_id'),
+                    'worker_id' => $request->input('worker_id'),
+                    'status' => $order->status,
+                    'products_price' => $order->products_price,
+                    'services_price' => $order->services_price,
+                    'tax_price' => $order->tax_price,
+                    'delivery_price' => $order->delivery_price,
+                    'total' => $order->total,
+                ]
+            );
 
-        return new EmergencyOrderResource($order);
+            $order_res =  new EmergencyOrderResource($order);
+
+            Cache::put($accepted_offer_key, $order_res, 60 * 10);
+
+            return $order_res;
+        }
+        return null;
     }
 
-    public function rejectOffer(AcceptWinchOffer $request){
+    public function rejectOffer(AcceptWinchOffer $request)
+    {
         $cache_key = 'emergency_order_offers_' . $request->input('order_id');
 
         if (Cache::has($cache_key)) {
@@ -153,8 +164,8 @@ class EmergencyOrderService extends OrderService
             $offers = [];
         }
 
-        foreach($offers as $key => $offer){
-            if($offer->id == $request->input('worker_id')){
+        foreach ($offers as $key => $offer) {
+            if ($offer->id == $request->input('worker_id')) {
                 unset($offers[$key]);
             }
         }
@@ -166,7 +177,8 @@ class EmergencyOrderService extends OrderService
         return $this->listOffers($request);
     }
 
-    public function listEmergencyOrders(){
+    public function listEmergencyOrders()
+    {
         $orders = Order::with([
             'vendors',
             'workers',

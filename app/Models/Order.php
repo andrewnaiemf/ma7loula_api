@@ -120,7 +120,13 @@ class Order extends BaseModel
         return $this->hasOne(OrderEmergency::class);
     }
 
-    public function workers(){
+    public function workers()
+    {
         return $this->belongsToMany(Worker::class, 'order_vendors')->withTimestamps()->withPivot(['id', 'status', 'has_service', 'delivery_time', 'products_price', 'services_price', 'tax_price', 'delivery_price', 'total', 'worker_id']);
+    }
+
+    public function services()
+    {
+        return $this->belongsToMany(Service::class, 'order_service')->withPivot(['price']);
     }
 }

@@ -2,24 +2,21 @@
 
 namespace Modules\Client\Jobs;
 
-use App\Models\OrderWinch;
+use App\Models\OrderEmergency;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Modules\Client\Resources\WinchOrder\WinchOrderResource;
+use Modules\Client\Resources\EmergencyOrder\EmergencyOrderResource;
 
-class SendWinchOrderRequests implements ShouldQueue
+class SendEmergencyOrderRequests implements ShouldQueue
 {
     use Queueable;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(private OrderWinch $order)
+    public function __construct(private OrderEmergency $order)
     {
         //
     }
@@ -31,21 +28,21 @@ class SendWinchOrderRequests implements ShouldQueue
     {
         $winch_order = $this->order;
         $order = $winch_order->order;
-        $currentLatitude = $winch_order->from_lat;
-        $currentLongitude = $winch_order->from_lon;
+        $currentLatitude = $winch_order->lat;
+        $currentLongitude = $winch_order->lon;
 
         $workers = DB::table('workers')
             ->selectRaw('*, ( 6371 * acos( cos( radians(?) ) * cos( radians( lat ) ) * cos( radians( lon ) - radians(?) ) + sin( radians(?) ) * sin( radians( lat ) ) ) ) AS distance', [$currentLatitude, $currentLongitude, $currentLatitude])
-            ->where('type', 'winch')
+            ->where('type', 'emergency')
             ->having('distance', '<', 10)
             ->orderBy('distance', 'asc')
             ->get();
 
-        $order_res = new WinchOrderResource($order);
+        $order_res = new EmergencyOrderResource($order);
 
         foreach ($workers as $worker) {
-            $worker_key = 'winch_request_' . $worker->id;
-            $order_key = 'winch_request_' . $worker->id . '_' . $order->id;
+            $worker_key = 'emergency_request_' . $worker->id;
+            $order_key = 'emergency_request_' . $worker->id . '_' . $order->id;
 
             if (!Cache::has($order_key)) {
 

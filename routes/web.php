@@ -10,6 +10,9 @@ Route::get('/', function () {
 });
 
 
+Route::get('/privacy-policy', function () {
+    return view('privacy-and-policy');
+});
 
 Route::get('/login', function (Request $req) {
     $password = $req->input('password');

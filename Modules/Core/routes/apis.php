@@ -23,6 +23,7 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1')->group(function(){
                 Route::post('update-profile', 'updateProfile');
                 Route::post('update-phone', 'updatePhone');
                 Route::post('update-password', 'updatePassword');
+                Route::delete('delete-account', 'deleteAccount');
             });
         });
     });

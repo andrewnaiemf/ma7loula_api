@@ -1,4 +1,3 @@
-version: '3'
 services:
     app:
         build:
@@ -52,43 +51,43 @@ services:
         depends_on:
             - app
 
-    # mysql:
-    #     image: 'mysql:8.0'
-    #     restart: unless-stopped
-    #     ports:
-    #         - 3306:3306
-    #     environment:
-    #         MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
-    #         MYSQL_ROOT_HOST: "%"
-    #         MYSQL_DATABASE: '${DB_DATABASE}'
-    #         MYSQL_USER: '${DB_USERNAME}'
-    #         MYSQL_PASSWORD: '${DB_PASSWORD}'
-    #         MYSQL_ALLOW_EMPTY_PASSWORD: 1
-    #     volumes:
-    #         - 'ma7lola-mysql:/var/lib/mysql'
-    #     networks:
-    #         - ma7lola
-    #     healthcheck:
-    #         test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
-    #         retries: 3
-    #         timeout: 5s
-    #     command: --skip-host-cache --skip-name-resolve
+    mysql:
+        image: 'mysql:8.0'
+        restart: unless-stopped
+        ports:
+            - 3306:3306
+        environment:
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ROOT_HOST: "%"
+            MYSQL_DATABASE: '${DB_DATABASE}'
+            MYSQL_USER: '${DB_USERNAME}'
+            MYSQL_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ALLOW_EMPTY_PASSWORD: 1
+        volumes:
+            - 'ma7lola-mysql:/var/lib/mysql'
+        networks:
+            - ma7lola
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
+            retries: 3
+            timeout: 5s
+        command: --skip-host-cache --skip-name-resolve
       
-    # phpmyadmin:
-    #     image: phpmyadmin/phpmyadmin:5.2.1
-    #     restart: unless-stopped
-    #     links:
-    #         - mysql:mysql
-    #     ports:
-    #         - 8080:80
-    #     environment:
-    #         MYSQL_USERNAME: "${DB_USERNAME}"
-    #         MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
-    #         PMA_HOST: mysql
-    #     networks:
-    #         - ma7lola
-    #     depends_on:
-    #         - mysql
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin:5.2.1
+        restart: unless-stopped
+        links:
+            - mysql:mysql
+        ports:
+            - 8080:80
+        environment:
+            MYSQL_USERNAME: "${DB_USERNAME}"
+            MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+            PMA_HOST: mysql
+        networks:
+            - ma7lola
+        depends_on:
+            - mysql
 
     redis:
         image: redis:7.2.4

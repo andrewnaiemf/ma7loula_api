@@ -88,5 +88,9 @@ class AuthController extends Controller
         ]);
     }
 
-    
+    public function deleteAccount(){
+        return $this->successResponse([
+            'user' => $this->authService->deleteAccount()
+        ]);
+    }
 }

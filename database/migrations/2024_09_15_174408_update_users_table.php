@@ -18,7 +18,6 @@ return new class extends Migration
             $table->unique(['email', 'role_id', 'deleted_at']);
             $table->unique(['phone', 'role_id', 'deleted_at']);
             $table->index(['role_id', 'phone']);
-            $table->dropUnique('email');
         });
     }
 

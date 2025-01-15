@@ -148,4 +148,11 @@ class AuthService
         $user = Auth::user();
         return $this->UserResource($user);
     }
+
+    public function deleteAccount(){
+        /** @var User $user */
+        $user = Auth::user();
+        $user->delete();
+        return $this->UserResource($user);
+    }
 }

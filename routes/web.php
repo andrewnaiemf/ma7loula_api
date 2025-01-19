@@ -14,14 +14,10 @@ Route::get('/privacy-policy', function () {
     return view('privacy-and-policy');
 });
 
-Route::get('/login', function (Request $req) {
-    $password = $req->input('password');
-    
-    if ($password == 'karimkarim') {
-        Auth::login(User::where('phone', '01119494098')->first());
-    }
+Route::get('/delete-account', function(){
+    return view('delete_account');    
+});
 
-    if(Auth::user()){
-        return Auth::user();
-    }
+Route::post('/delete-account', function(){
+    return view('delete_account')->with('message', 'We have received your request and your data will completely deleted from our servers in the next 48 hours.');
 });

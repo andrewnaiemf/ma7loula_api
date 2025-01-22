@@ -18,7 +18,7 @@ class OrdersDetailsRequest extends Request
     public function rules(): array
     {
         $rules =  [
-            'id' => ['required', Rule::exists('order_vendors', 'order_id')->whereNull('deleted_at')->where('worker_id', Auth::user()->worker->id)]
+            'id' => ['required', Rule::exists('orders', 'id')->whereNull('deleted_at')]
         ];
 
         return $rules;

@@ -9,6 +9,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/about-app', function () {
+    return view('about-app');
+});
 
 Route::get('/privacy-policy', function () {
     return view('privacy-and-policy');

@@ -11,6 +11,9 @@ class LoginRequest extends PublicRequest
         return [
             'phone' => ['required', 'digits:11', 'starts_with:011,010,012,015'],
             'password' => ['required', 'min:8'],
+            'fcm_token' => ['nullable', 'string', 'max:4096'],
+            'device_id' => ['nullable', 'string', 'max:191'],
+            'platform' => ['nullable', 'string', 'max:32'],
         ];
     }
 }

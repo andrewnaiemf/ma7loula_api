@@ -2,6 +2,7 @@
 
 namespace Modules\Client\Requests\Order;
 
+use App\Enums\OrderStatus;
 use Illuminate\Validation\Rule;
 use Modules\Core\Requests\PublicRequest;
 
@@ -9,18 +10,16 @@ class UpdateOrderStatusRequest extends PublicRequest
 {
     public function rules(): array
     {
-        return
-            [
-                'id' => [
-                    'required', Rule::exists('orders', 'id')->whereNull('deleted_at')
-                ],
-                'status' => [
-                    'required', 'string'
-                ],
-                'reason' => [
-                    'nullable', 'string'
-                ]
-
-            ];
+        return [
+            'id' => [
+                'required', Rule::exists('orders', 'id')->whereNull('deleted_at'),
+            ],
+            'status' => [
+                'required', 'string', Rule::in(OrderStatus::values()),
+            ],
+            'reason' => [
+                'nullable', 'string',
+            ],
+        ];
     }
 }

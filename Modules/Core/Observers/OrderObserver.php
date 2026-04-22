@@ -2,6 +2,8 @@
 
 namespace Modules\Core\Observers;
 
+use App\Enums\OrderStatus;
+use App\Enums\OrderVendorLineStatus;
 use App\Models\Order;
 use App\Models\OrderVendor;
 
@@ -13,7 +15,7 @@ class OrderObserver
     public function created(Order $order): void
     {
         $order->statuses()->create([
-            'status' => 'new'
+            'status' => OrderStatus::New->value,
         ]);
     }
 
@@ -24,12 +26,21 @@ class OrderObserver
     {
         if ($order->wasChanged('status')) {
             $order->statuses()->create([
-                'status' => $order->status
+                'status' => $order->status,
             ]);
 
-            OrderVendor::withoutEvents(function () use ($order) {
+            $terminal = [OrderStatus::Completed->value, OrderStatus::Cancelled->value];
+            if (! in_array($order->status, $terminal, true)) {
+                return;
+            }
+
+            $lineStatus = $order->status === OrderStatus::Completed->value
+                ? OrderVendorLineStatus::Completed->value
+                : OrderVendorLineStatus::Cancelled->value;
+
+            OrderVendor::withoutEvents(function () use ($order, $lineStatus) {
                 $order->vendor_orders()->update([
-                    'status' =>  $order->status
+                    'status' => $lineStatus,
                 ]);
             });
         }

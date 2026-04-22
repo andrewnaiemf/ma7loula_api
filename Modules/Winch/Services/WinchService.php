@@ -76,6 +76,7 @@ class WinchService extends AuthService
 
         //create user
         $user =  User::create($data);
+        $this->persistFcmTokenIfPresent($request, $user);
         $user->auth_token = $user->createToken('auth', ['*'], Carbon::now()->addDays(120))->plainTextToken;
 
         $attributes = [];

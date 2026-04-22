@@ -2,6 +2,7 @@
 
 namespace Modules\Vendor\Services;
 
+use App\Enums\OrderVendorLineStatus;
 use App\Models\Media;
 use App\Models\OrderVendor;
 use App\Models\Product;
@@ -11,19 +12,25 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Modules\Core\Exceptions\HttpErrorException;
 use Modules\Core\Services\AuthService;
 use Modules\Vendor\Requests\BT\Vendor\ListOrdersRequest;
 use Modules\Vendor\Requests\BT\Vendor\OrdersDetailsRequest;
 use Modules\Vendor\Requests\BT\Vendor\ProductDetailsRequest;
-use Modules\Vendor\Requests\CarParts\UpdateOrderStatusRequest;
+use Modules\Vendor\Requests\CarParts\AcceptVendorOrderLineRequest;
 use Modules\Vendor\Requests\CarParts\RegisterRequest;
+use Modules\Vendor\Requests\CarParts\SubmitVendorPriceOfferRequest;
+use Modules\Vendor\Requests\CarParts\UpdateOrderStatusRequest;
 use Modules\Vendor\Resources\BT\Vendor\OrderResource;
 use Modules\Vendor\Resources\BT\Vendor\ProductResource;
 use Modules\Vendor\Resources\BT\Vendor\VendorUserResource;
 
 class CarPartsVendorService extends AuthService
 {
-    public function __construct(private AuthService $authService) {}
+    public function __construct(
+        private AuthService $authService,
+        private VendorOrderLineActionService $orderLineActions,
+    ) {}
 
     public function registerRequirements()
     {
@@ -73,6 +80,7 @@ class CarPartsVendorService extends AuthService
 
         //create user
         $user =  User::create($data);
+        $this->persistFcmTokenIfPresent($request, $user);
         $user->auth_token = $user->createToken('auth', ['*'], Carbon::now()->addDays(120))->plainTextToken;
 
         //handle media
@@ -225,8 +233,18 @@ class CarPartsVendorService extends AuthService
             ->orderBy('id', 'desc')
             ->where('vendor_id', $vendor_id);
 
-        if ($status != 'active') {
-            $orders->where('status', 'completed');
+        if ($status === 'active') {
+            $orders->whereNotIn('status', [
+                OrderVendorLineStatus::Completed->value,
+                OrderVendorLineStatus::Cancelled->value,
+            ]);
+        } elseif (in_array($status, ['completed', 'history'], true)) {
+            $orders->whereIn('status', [
+                OrderVendorLineStatus::Completed->value,
+                OrderVendorLineStatus::Cancelled->value,
+            ]);
+        } else {
+            $orders->where('status', $status);
         }
 
         return $orders;
@@ -247,6 +265,7 @@ class CarPartsVendorService extends AuthService
             'order.user_car.client'
         ])
         ->where('vendor_id', $vendor_id)
+        ->where('id', $request->input('id'))
         ->first();
 
         return new OrderResource($order);
@@ -254,9 +273,35 @@ class CarPartsVendorService extends AuthService
 
     public function updateOrderStatus(UpdateOrderStatusRequest $request){
         $order = OrderVendor::find($request->input('id'));
+        if (! $order) {
+            throw new HttpErrorException(__('Order line not found.'), [], 404);
+        }
         $order->update([
             'status' => $request->input('status')
         ]);
-        return new OrderResource($order); 
+        return new OrderResource($order);
+    }
+
+    public function acceptOrderLine(AcceptVendorOrderLineRequest $request): OrderResource
+    {
+        $vendorId = Auth::user()->vendor->id;
+        $line = $this->orderLineActions->acceptAtListedPrice(
+            (int) $request->input('order_vendor_id'),
+            $vendorId
+        );
+
+        return new OrderResource($line);
+    }
+
+    public function submitPriceOffer(SubmitVendorPriceOfferRequest $request): OrderResource
+    {
+        $vendorId = Auth::user()->vendor->id;
+        $line = $this->orderLineActions->submitCounterOffer(
+            (int) $request->input('order_vendor_id'),
+            $vendorId,
+            (string) $request->input('offered_total')
+        );
+
+        return new OrderResource($line);
     }
 }

@@ -31,6 +31,15 @@ class OrderResource extends JsonResource
             'address'           => new AddressResource($this->address),
             'userCar'           => new UserCarResource($this->user_car),
             'products'          => OrderProductResource::collection($this->products),
+            'vendor_lines'      => $this->whenLoaded('vendor_orders', function () {
+                return $this->vendor_orders->map(fn ($line) => [
+                    'order_vendor_id' => $line->id,
+                    'vendor_id' => $line->vendor_id,
+                    'status' => $line->status,
+                    'total' => (float) $line->total,
+                    'offered_total' => $line->offered_total !== null && $line->offered_total !== '' ? (float) $line->offered_total : null,
+                ]);
+            }),
             'statueses'         => OrderStatusesResource::collection($this->statuses),
             'rate'              => new OrderRateResource($this->rate)
         ];

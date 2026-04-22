@@ -4,6 +4,7 @@ namespace Modules\Core\Services;
 
 use App\Models\Client;
 use App\Models\User;
+use App\Models\UserFcmToken;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -41,7 +42,10 @@ class AuthService
 
         $data['role_id'] = 2;
 
-        return User::create($data);
+        $user = User::create($data);
+        $this->persistFcmTokenIfPresent($request, $user);
+
+        return $user;
     }
 
     public function sendOTP(string $phone): int
@@ -109,6 +113,8 @@ class AuthService
             ->first();
 
             if ($user) {
+                $this->persistFcmTokenIfPresent($request, $user);
+
                 return $this->userWithAuthToken($user);
             }
         }
@@ -156,5 +162,37 @@ class AuthService
         $user = Auth::user();
         $user->delete();
         return $this->UserResource($user);
+    }
+
+    protected function persistFcmTokenIfPresent(Request $request, User $user): void
+    {
+        $token = $request->input('fcm_token');
+        if (! is_string($token) || $token === '') {
+            return;
+        }
+
+        $deviceId = $request->input('device_id');
+        if (is_string($deviceId) && $deviceId !== '') {
+            UserFcmToken::query()
+                ->where('user_id', $user->id)
+                ->where('device_id', $deviceId)
+                ->where('token_hash', '!=', hash('sha256', $token))
+                ->delete();
+        }
+
+        $hash = hash('sha256', $token);
+        UserFcmToken::updateOrCreate(
+            ['token_hash' => $hash],
+            [
+                'user_id' => $user->id,
+                'token' => $token,
+                'device_id' => is_string($deviceId) && $deviceId !== '' ? $deviceId : null,
+                'platform' => is_string($request->input('platform')) && $request->input('platform') !== ''
+                    ? $request->input('platform')
+                    : null,
+            ]
+        );
+
+        $user->forceFill(['fcm_token' => $token])->save();
     }
 }

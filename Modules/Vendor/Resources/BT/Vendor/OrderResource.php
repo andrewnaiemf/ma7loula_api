@@ -19,7 +19,10 @@ class OrderResource extends JsonResource
     {
         return [
             'id'                => $this->id,
+            'order_vendor_id'   => $this->id,
             'status'            => $this->status,
+            'order_status'      => $this->order?->status,
+            'offered_total'     => $this->offered_total !== null && $this->offered_total !== '' ? (float) $this->offered_total : null,
             'reason'            => $this->reason,
             'created_at'     => $this->created_at?->format('Y-m-d h:i A'),
             'delivery_time'     => $this->delivery_time?->format('Y-m-d h:i A'),

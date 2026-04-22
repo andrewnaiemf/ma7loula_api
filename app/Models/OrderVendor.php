@@ -14,7 +14,7 @@ class OrderVendor extends BaseModel
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['order_id', 'vendor_id', 'worker_id', 'products_price', 'services_price', 'tax_price', 'delivery_price', 'total', 'status'];
+    protected $fillable = ['order_id', 'vendor_id', 'worker_id', 'products_price', 'services_price', 'tax_price', 'delivery_price', 'total', 'offered_total', 'status'];
 
     public function vendor(){
         return $this->belongsTo(Vendor::class);

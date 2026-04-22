@@ -87,7 +87,7 @@ class Order extends BaseModel
      */
     public function vendors()
     {
-        return $this->belongsToMany(Vendor::class, 'order_vendors')->withTimestamps()->withPivot(['id', 'status', 'has_service', 'delivery_time', 'products_price', 'services_price', 'tax_price', 'delivery_price', 'total', 'worker_id']);
+        return $this->belongsToMany(Vendor::class, 'order_vendors')->withTimestamps()->withPivot(['id', 'status', 'has_service', 'delivery_time', 'products_price', 'services_price', 'tax_price', 'delivery_price', 'total', 'offered_total', 'worker_id']);
     }
 
     public function statuses()

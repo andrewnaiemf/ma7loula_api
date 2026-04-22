@@ -19,3 +19,7 @@ yarn-error.log
 /.idea
 /.zed
 app.zip
+
+# Firebase / Google service account keys (never commit)
+*firebase-adminsdk*.json
+firebase-service-account.json

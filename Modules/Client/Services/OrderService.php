@@ -2,23 +2,31 @@
 
 namespace Modules\Client\Services;
 
+use App\Enums\OrderStatus;
+use App\Enums\OrderVendorLineStatus;
+use App\Jobs\SendVendorOfferDecisionPushJob;
+use App\Jobs\SendVendorNewOrderPushJob;
 use App\Models\Order;
 use App\Models\OrderRate;
+use App\Models\OrderVendor;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\UserCar;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Modules\Client\Requests\CarParts\CarPartsOrderDetailsRequest;
 use Modules\Client\Requests\Order\CreateOrderRequest;
 use Modules\Client\Requests\Order\GetAvailableSoltsRequest;
 use Modules\Client\Requests\Order\RateOrderRequest;
+use Modules\Client\Requests\Order\RespondVendorOfferRequest;
 use Modules\Client\Requests\Order\UpdateOrderStatusRequest;
 use Modules\Client\Resources\EmergencyOrder\EmergencyOrderResource;
 use Modules\Client\Resources\OrderCarPartsResource;
 use Modules\Client\Resources\OrderResource;
 use Modules\Client\Resources\WinchOrder\WinchOrderResource;
+use Modules\Core\Exceptions\HttpErrorException;
 
 class OrderService
 {
@@ -63,7 +71,7 @@ class OrderService
 
             $order_vendors[] = [
                 'vendor_id' => $vendor_id,
-                'status' => 'new',
+                'status' => OrderVendorLineStatus::New->value,
                 'has_service' => $request->input('has_service', false),
                 'delivery_time' =>  $delivery_time,
                 
@@ -74,7 +82,7 @@ class OrderService
                 'total' => $products_per_vendor_price
             ];
 
-            $products_price += $total;
+            $products_price += $products_per_vendor_price;
         }
        // dd($time_slot);
         $tax = \App\Models\Setting::first()?->tax_percentage??10;
@@ -87,7 +95,7 @@ class OrderService
            // 'time_slot'=>$time_slot,
             'payment_method' => $request->input('payment_method'),
             'user_id' => $this->user->id,
-            'status' => 'new',
+            'status' => OrderStatus::New->value,
             'type' =>  $type,
             'car_id' => UserCar::find($request->input('user_car_id'))->car_id,
             'products_price' => $products_price,
@@ -102,10 +110,90 @@ class OrderService
 
         /** @var Order $order */
         $order = Order::create($order_data);
-        $order->vendors()->sync($order_vendors);
+        $syncByVendor = [];
+        foreach ($order_vendors as $row) {
+            $vendorId = $row['vendor_id'];
+            $syncByVendor[$vendorId] = Arr::except($row, ['vendor_id']);
+        }
+        $order->vendors()->sync($syncByVendor);
         $order->products()->sync($order_products);
 
+        $vendorIds = collect($order_vendors)->pluck('vendor_id')->unique()->values()->all();
+        SendVendorNewOrderPushJob::dispatch($vendorIds, $order->id, $type);
+
         return new OrderResource($order);
+    }
+
+    public static function syncAggregatesFromVendorLines(Order $order): void
+    {
+        $lines = $order->vendor_orders()->get();
+        if ($lines->isEmpty()) {
+            return;
+        }
+
+        $productsSum = $lines->sum(fn ($l) => (float) $l->products_price);
+        $orderSum = $lines->sum(fn ($l) => (float) $l->total);
+
+        $order->forceFill([
+            'products_price' => (string) $productsSum,
+            'total' => (string) $orderSum,
+        ])->saveQuietly();
+    }
+
+    public function respondToVendorOffer(RespondVendorOfferRequest $request, string $type)
+    {
+        $ov = OrderVendor::query()
+            ->whereKey($request->input('order_vendor_id'))
+            ->whereHas('order', fn ($q) => $q->where('user_id', $this->user->id)->where('type', $type)->whereNull('deleted_at'))
+            ->first();
+
+        if (! $ov) {
+            throw new HttpErrorException(__('Order vendor line not found for this customer/order type.'), [], 404);
+        }
+
+        if ($ov->status !== OrderVendorLineStatus::OfferPending->value) {
+            throw new HttpErrorException(__('No pending offer for this line.'), [], 422);
+        }
+
+        if ($request->input('action') === 'accept') {
+            if ($ov->offered_total === null || $ov->offered_total === '') {
+                throw new HttpErrorException(__('Offer amount missing.'), [], 422);
+            }
+            $offered = (string) $ov->offered_total;
+            $ov->update([
+                'status' => OrderVendorLineStatus::Confirmed->value,
+                'products_price' => $offered,
+                'total' => $offered,
+                'offered_total' => null,
+            ]);
+        } else {
+            $ov->update([
+                'status' => OrderVendorLineStatus::OfferDeclined->value,
+                'offered_total' => null,
+            ]);
+        }
+
+        SendVendorOfferDecisionPushJob::dispatch(
+            (int) $ov->id,
+            (string) $request->input('action')
+        );
+
+        $order = $ov->order()->first();
+        if ($order) {
+            self::syncAggregatesFromVendorLines($order);
+        }
+
+        $order = Order::with([
+            'products',
+            'products.thumbnail',
+            'products.vendor',
+            'vendor_orders',
+        ])
+            ->where('user_id', $this->user->id)
+            ->where('type', $type)
+            ->find($ov->order_id);
+
+        return $this->returnResource($order, $type);
     }
 
     public function listOrders(Request $request, string $type)
@@ -114,6 +202,7 @@ class OrderService
             'products',
             'products.thumbnail',
             'products.vendor',
+            'vendor_orders',
             'user_car',
             'user_car.car',
             'user_car.car.model',
@@ -145,7 +234,8 @@ class OrderService
                 $with = [
                     'products',
                     'products.thumbnail',
-                    'products.vendor'
+                    'products.vendor',
+                    'vendor_orders',
                 ];
         }
 

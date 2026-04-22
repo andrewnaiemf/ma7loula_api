@@ -33,8 +33,10 @@ Route::middleware(ValidateHeaders::class)->group(function () {
 
                 Route::prefix('order')->group(function () {
                     Route::get('/details', 'orderDetails');
-                    Route::get('/{status}', 'listOrders');
+                    Route::post('/accept-line', 'acceptOrderLine');
+                    Route::post('/submit-price-offer', 'submitPriceOffer');
                     Route::post('/update-status', 'updateOrderStatus');
+                    Route::get('/{status}', 'listOrders');
                 });
             });
         });
@@ -64,8 +66,10 @@ Route::middleware(ValidateHeaders::class)->group(function () {
 
                 Route::prefix('order')->group(function () {
                     Route::get('/details', 'orderDetails');
-                    Route::get('/{status}', 'listOrders');
+                    Route::post('/accept-line', 'acceptOrderLine');
+                    Route::post('/submit-price-offer', 'submitPriceOffer');
                     Route::post('/update-status', 'updateOrderStatus');
+                    Route::get('/{status}', 'listOrders');
                 });
             });
         });

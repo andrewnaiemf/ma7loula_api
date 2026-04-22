@@ -1,0 +1,73 @@
+<?php
+
+namespace App\Jobs;
+
+use App\Models\OrderVendor;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
+use Modules\Core\Services\FcmPushService;
+
+class SendVendorOfferDecisionPushJob implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    public function __construct(
+        public int $orderVendorId,
+        public string $decision
+    ) {}
+
+    public function handle(FcmPushService $fcm): void
+    {
+        $line = OrderVendor::query()
+            ->with(['order', 'vendor.user'])
+            ->find($this->orderVendorId);
+
+        if (! $line || ! $line->vendor || ! $line->vendor->user || ! $line->order) {
+            return;
+        }
+
+        $vendorUser = $line->vendor->user;
+        $tokens = $vendorUser->fcmTokens()->pluck('token')->filter()->unique()->values();
+
+        if ($tokens->isEmpty() && ! empty($vendorUser->fcm_token)) {
+            $tokens = collect([$vendorUser->fcm_token]);
+        }
+
+        if ($tokens->isEmpty()) {
+            Log::info('Vendor offer decision push skipped: no FCM token', [
+                'order_id' => $line->order_id,
+                'order_vendor_id' => $line->id,
+                'vendor_user_id' => $vendorUser->id,
+                'decision' => $this->decision,
+            ]);
+
+            return;
+        }
+
+        $accepted = $this->decision === 'accept';
+        $title = $accepted ? 'Offer accepted' : 'Offer rejected';
+        $body = $accepted
+            ? 'Customer accepted your offer for order #'.$line->order_id
+            : 'Customer rejected your offer for order #'.$line->order_id;
+
+        foreach ($tokens as $deviceToken) {
+            $fcm->sendToToken(
+                (string) $deviceToken,
+                $title,
+                $body,
+                [
+                    'kind' => 'vendor_offer_decision',
+                    'decision' => $this->decision,
+                    'order_id' => (string) $line->order_id,
+                    'order_vendor_id' => (string) $line->id,
+                    'type' => (string) $line->order->type,
+                    'vendor_id' => (string) $line->vendor_id,
+                ]
+            );
+        }
+    }
+}

@@ -30,7 +30,8 @@ class User extends Authenticatable
         'phone',
         'password',
         'default_address_id',
-        'role_id'
+        'role_id',
+        'fcm_token',
     ];
 
     /**
@@ -82,5 +83,10 @@ class User extends Authenticatable
 
     public function role(){
         return $this->belongsTo(Role::class);
+    }
+
+    public function fcmTokens()
+    {
+        return $this->hasMany(UserFcmToken::class);
     }
 }

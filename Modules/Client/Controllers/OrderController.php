@@ -8,6 +8,7 @@ use Modules\Client\Requests\CarParts\CarPartsOrderDetailsRequest;
 use Modules\Client\Requests\Order\CreateOrderRequest as CreateCarPartsOrderRequest;
 use Modules\Client\Requests\Order\GetAvailableSoltsRequest;
 use Modules\Client\Requests\Order\RateOrderRequest;
+use Modules\Client\Requests\Order\RespondVendorOfferRequest;
 use Modules\Client\Requests\Order\UpdateOrderStatusRequest;
 use Modules\Client\Resources\OrderListCarPartsResource;
 use Modules\Client\Services\OrderService;
@@ -85,6 +86,27 @@ class OrderController extends Controller
     {
         return $this->successResponse([
             'order' => $this->orderService->updateOrderStatus($request)
+        ]);
+    }
+
+    public function respondVendorOfferCarParts(RespondVendorOfferRequest $request)
+    {
+        return $this->successResponse([
+            'order' => $this->orderService->respondToVendorOffer($request, 'car-parts'),
+        ]);
+    }
+
+    public function respondVendorOfferTire(RespondVendorOfferRequest $request)
+    {
+        return $this->successResponse([
+            'order' => $this->orderService->respondToVendorOffer($request, 'tire'),
+        ]);
+    }
+
+    public function respondVendorOfferBattery(RespondVendorOfferRequest $request)
+    {
+        return $this->successResponse([
+            'order' => $this->orderService->respondToVendorOffer($request, 'battery'),
         ]);
     }
 

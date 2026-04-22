@@ -35,4 +35,15 @@ return [
         ],
     ],
 
+    /*
+    | Firebase Cloud Messaging (HTTP v1)
+    | Download a service account JSON from Firebase Console:
+    | Project settings → Service accounts → Generate new private key
+    | Set FIREBASE_CREDENTIALS to the path of that file (absolute or relative to project root).
+    */
+    'firebase' => [
+        'credentials' => env('FIREBASE_CREDENTIALS', env('GOOGLE_APPLICATION_CREDENTIALS')),
+        'project_id' => env('FIREBASE_PROJECT_ID', 'ma7lola-75b28'),
+    ],
+
 ];

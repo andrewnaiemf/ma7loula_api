@@ -10,6 +10,8 @@ use Modules\Vendor\Requests\BT\Vendor\ListProductsRequest;
 use Modules\Vendor\Requests\BT\Vendor\OrdersDetailsRequest;
 use Modules\Vendor\Requests\BT\Vendor\ProductDetailsRequest;
 use Modules\Vendor\Requests\CarParts\AddProductRequest;
+use Modules\Vendor\Requests\CarParts\AcceptVendorOrderLineRequest;
+use Modules\Vendor\Requests\CarParts\SubmitVendorPriceOfferRequest;
 use Modules\Vendor\Requests\CarParts\UpdateOrderStatusRequest;
 use Modules\Vendor\Requests\CarParts\RegisterRequest;
 use Modules\Vendor\Resources\BT\Vendor\OrderResource;
@@ -130,6 +132,20 @@ class CarPartsVendorController extends Controller {
     public function updateOrderStatus(UpdateOrderStatusRequest $request){
         return $this->successResponse([
             'order' => $this->vendorService->updateOrderStatus($request)
+        ]);
+    }
+
+    public function acceptOrderLine(AcceptVendorOrderLineRequest $request)
+    {
+        return $this->successResponse([
+            'order' => $this->vendorService->acceptOrderLine($request),
+        ]);
+    }
+
+    public function submitPriceOffer(SubmitVendorPriceOfferRequest $request)
+    {
+        return $this->successResponse([
+            'order' => $this->vendorService->submitPriceOffer($request),
         ]);
     }
 }

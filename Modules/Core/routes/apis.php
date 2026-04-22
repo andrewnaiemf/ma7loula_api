@@ -29,6 +29,7 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1')->group(function(){
     });
 
     Route::controller(HomeController::class)->group(function () {
+        Route::get('start', 'AppStart');
         Route::get('about-app', 'aboutApp');
         Route::get('faq', 'faq');
         Route::get('privacy-policy', 'privacyPolicy');

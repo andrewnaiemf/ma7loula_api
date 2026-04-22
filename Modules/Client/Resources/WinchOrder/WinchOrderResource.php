@@ -4,6 +4,7 @@ namespace Modules\Client\Resources\WinchOrder;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Modules\Client\Resources\ClientResource;
 use Modules\Client\Resources\OrderRateResource;
 use Modules\Client\Resources\OrderStatusesResource;
 use Modules\Client\Resources\UserCarResource;
@@ -22,10 +23,14 @@ class WinchOrderResource extends JsonResource
         return [
             'id'                    => $this->id,
             'status'                => $this->status,
+            'reason'            => $this->reason,
             'payment_method'        => $this->payment_method,
+            'created_at'     => $this->created_at?->format('Y-m-d h:i A'),
+            'delivery_time'     => $this->delivery_time?->format('Y-m-d h:i A'),
             'services_price'        => (float) $this->services_price,
             'tax_price'             => (float) $this->tax_price,
             'total'                 => (float) $this->total,
+            'user'                  => new ClientResource($this->user),
             'userCar'               => new UserCarResource($this->user_car),
             'statueses'             => OrderStatusesResource::collection($this->statuses),
             'rate'                  => new OrderRateResource($this->rate),

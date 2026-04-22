@@ -23,7 +23,7 @@ class ListTiresRequest extends PublicRequest
                 'type' => ['required', 'in:normal,flat'],
                 'height' => ['required', 'integer'],
                 'width' => ['required', 'integer'],
-                'length' => ['required', 'integer'],
+                'length' => ['required'],
             ];
     }
 }

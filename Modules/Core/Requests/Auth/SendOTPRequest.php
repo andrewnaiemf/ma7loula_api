@@ -15,7 +15,7 @@ class SendOTPRequest extends PublicRequest
             'purpose' => ['required', 'string', 'in:register,reset-password,update-phone'],
             'phone' => ['required', 'digits:11', 'starts_with:011,010,012,015']
         ];
-
+        
         switch ($this->input('purpose')) {
             case 'register':
             case 'update-phone':

@@ -15,7 +15,7 @@ class Product extends BaseModel
     public const BatteriesCategory = 1;
     public const TiresCategory = 2;
 
-    protected $fillable = ['name', 'description', 'category_id', 'brand_id', 'vendor_id', 'price', 'price_before_discount', 'stock', 'status', 'default_media_id'];
+    protected $fillable = ['sku','name', 'description', 'category_id', 'brand_id', 'vendor_id', 'price', 'price_before_discount', 'stock', 'status', 'default_media_id'];
 
     public $translatable = ['name', 'description'];
 

@@ -29,6 +29,9 @@ class EmergencyOrderService extends OrderService
 
     public function createEmergencyOrder(CreateEmergencyOrderRequest $request)
     {
+        $products_price = 300;
+        $tax = \App\Models\Setting::first()?->tax_percentage??10;
+        $total_with_tax = $products_price + ($products_price * $tax / 100);    
         $order_data = [
             'user_car_id' => $request->input('user_car_id'),
             'user_id' => $this->user->id,
@@ -37,9 +40,11 @@ class EmergencyOrderService extends OrderService
             'car_id' => UserCar::find($request->input('user_car_id'))->car_id,
             'products_price' => 0,
             'services_price' => 300,
-            'tax_price' => 0,
+           // 'tax_price' => 0,
+           'tax_price' => $tax,
             'delivery_price' => 0,
-            'total' => 300
+           // 'total' => 300
+           'total' => $total_with_tax
         ];
 
         /** @var Order $order */
@@ -95,7 +100,7 @@ class EmergencyOrderService extends OrderService
 
         $offers = json_decode(json_encode($offers));
 
-        Cache::put($key, $offers, 60);
+        Cache::put($key, $offers, 900);
 
         return $offers;
     }
@@ -147,7 +152,7 @@ class EmergencyOrderService extends OrderService
 
             $order_res =  new EmergencyOrderResource($order);
 
-            Cache::put($accepted_offer_key, $order_res, 60 * 10);
+            Cache::put($accepted_offer_key, $order_res, 900);
 
             return $order_res;
         }
@@ -156,23 +161,26 @@ class EmergencyOrderService extends OrderService
 
     public function rejectOffer(AcceptWinchOffer $request)
     {
+       // dd($request->all());
         $cache_key = 'emergency_order_offers_' . $request->input('order_id');
-
+       // dd($cache_key);
+       // dd(Cache::get($cache_key));
         if (Cache::has($cache_key)) {
             $offers = Cache::get($cache_key);
         } else {
             $offers = [];
         }
-
+    //dd($offers);
         foreach ($offers as $key => $offer) {
-            if ($offer->id == $request->input('worker_id')) {
+            $offer_arr = explode('_',$offer);
+            if (count($offer_arr) > 0 && $offer_arr[count($offer_arr) - 1] == $request->input('worker_id')) {
                 unset($offers[$key]);
             }
         }
 
         $offers = json_decode(json_encode($offers));
 
-        Cache::put($cache_key, (array) $offers, 60);
+        Cache::put($cache_key, (array) $offers, 900);
 
         return $this->listOffers($request);
     }

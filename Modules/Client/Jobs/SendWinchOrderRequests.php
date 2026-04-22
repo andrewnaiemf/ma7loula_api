@@ -56,8 +56,8 @@ class SendWinchOrderRequests implements ShouldQueue
                 }
 
                 array_unshift($requests_keys, $order_key);
-                Cache::put($order_key, $order_res, 60);
-                Cache::put($worker_key, $requests_keys, 60);
+                Cache::put($order_key, $order_res, 900);
+                Cache::put($worker_key, $requests_keys, 900);
             }
         }
     }

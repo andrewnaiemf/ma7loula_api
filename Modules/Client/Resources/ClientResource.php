@@ -1,13 +1,13 @@
 <?php
 
-namespace Modules\Client\Resources\WinchOrder;
+namespace Modules\Client\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Modules\Core\Resources\CarResource;
 
-class WinchOrderWorkerResource extends JsonResource
+class ClientResource extends JsonResource
 {
-
     /**
      * Transform the resource into an array.
      *
@@ -16,11 +16,10 @@ class WinchOrderWorkerResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'    => $this->id,
-            'name'  => $this->user->name,
-            'phone'  => $this->user->phone,
-            'lat' => $this->lat,
-            'lon' => $this->lon,
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+            'phone' => $this->phone
         ];
     }
 }

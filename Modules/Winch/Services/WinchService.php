@@ -30,20 +30,38 @@ class WinchService extends AuthService
 
     public function registerRequirements()
     {
-        return [
-            [
-                'title' => 'مسح رقم الهوية',
-                'body' => 'هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي'
-            ],
-            [
-                'title' => 'رخصة الشركة',
-                'body' => 'هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي'
-            ],
-            [
-                'title' => 'الرقم الضريبي',
-                'body' => 'هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي'
-            ]
-        ];
+        if(request()->header('lang') == 'ar') {
+            return [
+                [
+                    'title' => 'مسح رقم الهوية',
+                    'body' => 'هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي'
+                ],
+                [
+                    'title' => 'رخصة الشركة',
+                    'body' => 'هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي'
+                ],
+                [
+                    'title' => 'الرقم الضريبي',
+                    'body' => 'هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي'
+                ]
+            ];
+        }else{
+            return [
+                [
+                    'title' => 'ID Number Scan',
+                    'body' => 'It is a long-established fact that a reader will be distracted by the readable content of a page when looking at its layout.'
+                ],
+                [
+                    'title' => 'Company License',
+                    'body' => 'It is a long-established fact that a reader will be distracted by the readable content of a page when looking at its layout.'
+                ],
+                [
+                    'title' => 'Tax Number',
+                    'body' => 'It is a long-established fact that a reader will be distracted by the readable content of a page when looking at its layout.'
+                ]
+            ];
+
+        }
     }
 
     public function UserResource($user): JsonResource
@@ -142,7 +160,13 @@ class WinchService extends AuthService
         ]);
 
         $order = $orderVendor->order;
-
+        
+        if($request->input('status') == 'completed'){
+            $worker = Auth::user()->worker;
+            $order_key = 'accepted_winch_request_' . $worker->id;
+            Cache::forget($order_key);
+            
+        }
         return new WinchOrderResource($order);
     }
 
@@ -187,8 +211,8 @@ class WinchService extends AuthService
 
             array_unshift($offers, $worker_offer_key);
 
-            Cache::put($order_offers_keys, $offers, 60);
-            Cache::put($worker_offer_key, $new_offer, 60);
+            Cache::put($order_offers_keys, $offers, 900);
+            Cache::put($worker_offer_key, $new_offer, 900);
 
             Cache::forget('winch_request_' . $worker->id . '_' .  $request->input('order_id'));
 

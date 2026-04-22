@@ -24,31 +24,39 @@ class BatteryService
 
     public function listVoles(ListVoltRequest $request)
     {
-        $batteries_products_volatages  = $this->batteryProductQuery($request)
-            ->join('product_attributes as volt', function ($q) {
-                $q->on('volt.product_id', 'products.id');
-                $q->where('volt.key', 'voltage');
-            })
-            ->groupBy('volt.value')
-            ->get()
-            ->pluck('value');
+        // $batteries_products_volatages  = $this->batteryProductQuery($request)
+        //     ->join('product_attributes as volt', function ($q) {
+        //         $q->on('volt.product_id', 'products.id');
+        //         $q->where('volt.key', 'voltage');
+        //     })
+        //     ->groupBy('volt.value')
+        //     ->get()
+        //     ->pluck('value');
+        $numbers = range(35, 120, 5);
+        $result = [];
 
-        return $batteries_products_volatages;
+        foreach ($numbers as $num) {
+            $result[] = $num . ' A';
+        }
+
+        return  $result;
     }
 
     public function listBrands(ListBrandsRequest $request)
     {
-        $tires_products_brands  = $this->batteryProductQuery($request)
-            ->whereHas('attrs', function ($q) use ($request) {
-                $q
-                    ->where('key', 'voltage')
-                    ->where('value', $request->input('voltage'));
-            })
-            ->groupBy('brand_id')
-            ->get()
-            ->pluck('brand_id');
+        // $tires_products_brands  = $this->batteryProductQuery($request)
+        //     ->whereHas('attrs', function ($q) use ($request) {
+        //         $q
+        //             ->where('key', 'voltage')
+        //             ->where('value', $request->input('voltage'));
+        //     })
+        //     ->groupBy('brand_id')
+        //     ->get()
+        //     ->pluck('brand_id');
 
-        $brands = ProductBrand::whereIn('id', $tires_products_brands)->get();
+       // $brands = ProductBrand::whereIn('id', $tires_products_brands)->get();
+        $brands = ProductBrand::where('product_category_id', Product::BatteriesCategory)->get();
+
 
         return ProductBrandResource::collection($brands);
     }

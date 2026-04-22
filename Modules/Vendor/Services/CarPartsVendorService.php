@@ -27,20 +27,38 @@ class CarPartsVendorService extends AuthService
 
     public function registerRequirements()
     {
-        return [
-            [
-                'title' => 'مسح رقم الهوية',
-                'body' => 'هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي'
-            ],
-            [
-                'title' => 'رخصة الشركة',
-                'body' => 'هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي'
-            ],
-            [
-                'title' => 'الرقم الضريبي',
-                'body' => 'هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي'
-            ]
-        ];
+        if(request()->header('lang') == 'ar') {
+            return [
+                [
+                    'title' => 'مسح رقم الهوية',
+                    'body' => 'هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي'
+                ],
+                [
+                    'title' => 'رخصة الشركة',
+                    'body' => 'هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي'
+                ],
+                [
+                    'title' => 'الرقم الضريبي',
+                    'body' => 'هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي'
+                ]
+            ];
+        }else{
+            return [
+                [
+                    'title' => 'ID Number Scan',
+                    'body' => 'It is a long-established fact that a reader will be distracted by the readable content of a page when looking at its layout.'
+                ],
+                [
+                    'title' => 'Company License',
+                    'body' => 'It is a long-established fact that a reader will be distracted by the readable content of a page when looking at its layout.'
+                ],
+                [
+                    'title' => 'Tax Number',
+                    'body' => 'It is a long-established fact that a reader will be distracted by the readable content of a page when looking at its layout.'
+                ]
+            ];
+
+        }
     }
 
     public function UserResource($user): JsonResource
@@ -106,7 +124,7 @@ class CarPartsVendorService extends AuthService
 
     public function addProduct(Request $request): Product
     {
-        $product_data = $request->all(['name', 'description', 'brand_id', 'price', 'price_before_discount', 'stock', 'category_id', 'status']);
+        $product_data = $request->all(['sku','name', 'description', 'brand_id', 'price', 'price_before_discount', 'stock', 'category_id', 'status']);
 
         $product_data = array_merge($product_data, [
             'vendor_id' => Auth::user()->vendor->id
@@ -126,6 +144,13 @@ class CarPartsVendorService extends AuthService
 
         //create product
         return $product;
+    }
+    
+    public function destroy(Request $request){
+        return $this->successResponse([
+            'tire' => $this->vendorService->destroy($request)
+        ]);
+       
     }
 
     private function handleMedia(Product $product, array $images, string $default_image = null)

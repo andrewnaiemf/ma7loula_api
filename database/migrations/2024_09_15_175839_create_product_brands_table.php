@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('product_brands', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->nullable();
+            $table->string('origin')->nullable();
+            $table->string('amber')->nullable();
             $table->unsignedBigInteger('product_category_id')->index();
             $table->foreign('product_category_id')->references('id')->on('product_categories')->onUpdate('cascade');
 

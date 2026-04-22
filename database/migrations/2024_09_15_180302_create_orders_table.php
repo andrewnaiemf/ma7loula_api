@@ -27,6 +27,8 @@ return new class extends Migration
             $table->foreign('address_id')->references('id')->on('addresses')->onUpdate('cascade')->onDelete('cascade');
 
             $table->string('status')->index();
+            $table->longText('reason')->nullable();
+
             $table->string('payment_method');
             $table->enum('type', ['tire', 'battery', 'car-parts', 'winch', 'emergency'])->index();
             $table->timestamp('delivery_time')->nullable()->default(null);
@@ -40,6 +42,7 @@ return new class extends Migration
 
             $table->index(['type', 'status']);
             $table->index(['status', 'user_id']);
+
             
             $table->timestamps();
             $table->softDeletes();

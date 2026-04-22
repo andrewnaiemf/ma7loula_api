@@ -20,6 +20,8 @@ class OrderResource extends JsonResource
         return [
             'id'                => $this->id,
             'status'            => $this->status,
+            'reason'            => $this->reason,
+            'created_at'     => $this->created_at?->format('Y-m-d h:i A'),
             'delivery_time'     => $this->delivery_time?->format('Y-m-d h:i A'),
             'payment_method'    => (float) $this->payment_method,
             'products_price'    => (float) $this->products_price,

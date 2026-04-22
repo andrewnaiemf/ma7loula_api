@@ -22,7 +22,9 @@ class HomeController extends Controller
                     'text' => trans('Core::messages.start.1.text'),
                     'subtext' => trans('Core::messages.start.1.subtext'),
                 ]
-            ]
+                ],
+                'repair_instalation_service'=>\App\Models\Setting::first()?->repaire_installation_service??0,
+                'tax_percentage'=>\App\Models\Setting::first()?->tax_percentage??10
         ]);
     }
 
@@ -55,39 +57,42 @@ class HomeController extends Controller
     public function aboutApp()
     {
         return $this->successResponse([
-            'text' => 'About App Text'
+            'text' => \App\Models\Setting::first()?->about_us??''
         ]);
     }
 
     public function faq()
     {
-        return $this->successResponse([
-            [
-                'question' => 'Question 1',
-                'answer' => 'Answer 1',
-            ],
-            [
-                'question' => 'Question 2',
-                'answer' => 'Answer 2',
-            ],
-            [
-                'question' => 'Question 3',
-                'answer' => 'Answer 3',
-            ]
-        ]);
+        $faq = [];
+        $setting = \App\Models\Setting::first();
+        if(isset($setting->id)){
+            for ($i = 1; $i <= 10; $i++) {
+                $question = $setting->{'question' . $i};
+                $answer = $setting->{'answer' . $i};
+
+                if (!empty($question) && !empty($answer)) {
+                    $faq[] = [
+                        'question' => $question,
+                        'answer' => $answer,
+                    ];
+                }
+            }
+
+        }
+        return $this->successResponse($faq);
     }
 
     public function privacyPolicy()
     {
         return $this->successResponse([
-            'text' => 'privacy Policy Text'
+            'text' => \App\Models\Setting::first()?->privacy_policy??''
         ]);
     }
 
     public function termsAndConditions()
     {
         return $this->successResponse([
-            'text' => 'Terms and conditions Text'
+            'text' => \App\Models\Setting::first()?->terms_and_conditions??''
         ]);
     }
 }

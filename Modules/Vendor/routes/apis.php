@@ -27,6 +27,8 @@ Route::middleware(ValidateHeaders::class)->group(function () {
                     Route::get('/list/{type}/{status}', 'listProducts');
                     Route::post('/add-battery', 'addBattery');
                     Route::post('/add-tire', 'addTire');
+                    Route::delete('/tires','destroy');
+                    Route::delete('/delete','destroy');
                 });
 
                 Route::prefix('order')->group(function () {
@@ -56,6 +58,8 @@ Route::middleware(ValidateHeaders::class)->group(function () {
                     Route::get('/', 'productDetails');
                     Route::get('/list/{status}', 'listProducts');
                     Route::post('/add-product', 'addProduct');
+                    Route::delete('/products','destroy');
+                    Route::delete('/delete','destroy');                  
                 });
 
                 Route::prefix('order')->group(function () {

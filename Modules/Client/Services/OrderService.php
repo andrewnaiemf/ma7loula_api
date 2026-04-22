@@ -37,7 +37,8 @@ class OrderService
         }
 
         $delivery_time = ($request->input('delivery_type') == 'fast') ? Carbon::tomorrow()->setHour(10) : Carbon::createFromFormat('Y-m-d H:i', $request->input('delivery_time'));
-
+        //$time_slot = ($request->input('delivery_type') == 'fast') ? NULL : date('H:i:s', strtotime($request->input('delivery_time')));
+     
         $order_vendors = [];
         $order_products = [];
 
@@ -65,6 +66,7 @@ class OrderService
                 'status' => 'new',
                 'has_service' => $request->input('has_service', false),
                 'delivery_time' =>  $delivery_time,
+                
                 'services_price' => 0,
                 'tax_price' => 0,
                 'delivery_price' => 0,
@@ -74,12 +76,15 @@ class OrderService
 
             $products_price += $total;
         }
-
+       // dd($time_slot);
+        $tax = \App\Models\Setting::first()?->tax_percentage??10;
+        $total_with_tax = $products_price + ($products_price * $tax / 100);
         $order_data = [
             'user_car_id' => $request->input('user_car_id'),
             'address_id' => $request->input('address_id'),
             'has_service' => $request->input('has_service', false),
             'delivery_time' =>  $delivery_time,
+           // 'time_slot'=>$time_slot,
             'payment_method' => $request->input('payment_method'),
             'user_id' => $this->user->id,
             'status' => 'new',
@@ -87,9 +92,11 @@ class OrderService
             'car_id' => UserCar::find($request->input('user_car_id'))->car_id,
             'products_price' => $products_price,
             'services_price' => 0,
-            'tax_price' => 0,
+            //'tax_price' => 0,
+            'tax_price' => $tax,
             'delivery_price' => 0,
-            'total' => $products_price
+           // 'total' => $products_price
+           'total' => $total_with_tax
         ];
 
 
@@ -157,7 +164,8 @@ class OrderService
     {
         $order = Order::find($request->input('id'));
         $order->update([
-            'status' => $request->input('status')
+            'status' => $request->input('status'),
+            'reason' => $request->input('reason')??NULL
         ]);
 
         return $this->returnResource($order, $type);
@@ -191,9 +199,15 @@ class OrderService
 
         $i = 0;
         while ($endTime >= $startTime) {
+        //     $date = $request->input('date') . ' ' . $startTime->format('H:i:s');
+        //     $order = Order::where('delivery_time', $date)
+        //    ->where('type', $request->input('type'))
+        //    ->where('status','!=','cancelled')
+        //     ->first();
+
             $slots[] = [
-                "time" => $startTime->format('H:i:s'),
-                "is_available" => (($i%2) == 0)
+                "time" => $startTime->format('h:i:s a'),
+                "is_available" => ($i % 2 == 0)
             ];
             $startTime->addHours(2);
             $i++;

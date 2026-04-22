@@ -13,7 +13,7 @@ class RegisterRequest extends AuthRegisterRequest
         $rules =  array_merge([
             'email' => ['required', 'email', Rule::unique('users', 'email')->where('role_id', 3)->whereNull('deleted_at')],
             'phone' => ['required', 'digits:11', 'starts_with:011,010,012,015', Rule::unique('users', 'phone')->where('role_id', 3)->whereNull('deleted_at')],
-
+            'password' => ['required', 'min:8', 'confirmed'],
             'id_image' => ['required', 'string'],
             'company_name' => ['required', 'string'],
             'company_licence_image' => ['required', 'string'],

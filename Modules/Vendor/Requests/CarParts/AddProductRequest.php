@@ -18,12 +18,14 @@ class AddProductRequest extends Request
 
     public function rules(): array
     {
+      //  \Illuminate\Support\Facades\Log::info('User profile updated', ['user_id' => $this->brand_id]);
         $rules =  [
             'name' => ['required', 'string'],
+            'sku' => ['required', 'string'],
             'description' => ['required', 'string'],
-            'images' => ['required', 'array'],
-            'images.*' => ['required', 'string'],
-            'default_image' => ['required', 'string'],
+            'images' => ['nullable', 'array'],
+            'images.*' => ['nullable', 'string'],
+            'default_image' => ['nullable', 'string'],
             'brand_id' => ['required',  Rule::exists('product_brands', 'id')->whereNull('deleted_at')->where('product_category_id', Product::BatteriesCategory)],
             'stock' => ['required', 'integer'],
             'price' => ['required', 'numeric'],

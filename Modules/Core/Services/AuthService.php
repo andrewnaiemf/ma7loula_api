@@ -48,7 +48,9 @@ class AuthService
     {
         $otp = rand(100000, 999999);
         Cache::put('otp_for_'.$phone, $otp, 60*10);
-        SendSMSJob::dispatch($phone, $otp);
+       // SendSMSJob::dispatch($phone, $otp);
+        $sms = new SendSMSJob($phone, $otp);
+       $sms->handle(new \Modules\Core\Plugins\SMS\SMSSender());
         return $otp;
     }
 

@@ -5,6 +5,7 @@ namespace Modules\Client\Services;
 use App\Models\Order;
 use App\Models\OrderVendor;
 use App\Models\OrderWinch;
+use App\Models\Setting;
 use App\Models\User;
 use App\Models\UserCar;
 use App\Models\Worker;
@@ -33,7 +34,16 @@ class WinchOrderService extends OrderService
 
     public function calculatePrice(CalculateWinchOrderPriceRequest $request)
     {
-        return $request->input("distance_in_meters") * 0.50;
+        $distance_in_meters = $request->input("distance_in_meters");
+
+         $distance_in_km = $distance_in_meters / 1000;
+
+        $tax = Setting::first()?->tax_percentage ?? 10;
+        $pricePerKilo = $this->getPricePerKilo();
+        $billableKilo = $distance_in_km <= 10 ? 10 : ceil($distance_in_km);
+        $base = $billableKilo * $pricePerKilo;
+
+        return $base + (($tax / 100) * $base);
     }
 
     public function listWinchOrders()
@@ -57,19 +67,39 @@ class WinchOrderService extends OrderService
 
     public function createWinchOrder(CreateWinchOrderRequest $request)
     {
+        $tax = Setting::first()?->tax_percentage ?? 10;
+        $pricePerKilo = $this->getPricePerKilo();
+
+        $distance_in_meters = $request->input("distance_in_meters");
+
+         $distance_in_km = (double)$distance_in_meters / 1000;
+
+        $billableKilo = $distance_in_km <= 10 ? 10 : ceil($distance_in_km);
+        $services_price = $billableKilo * $pricePerKilo;
+        $total_with_tax = $services_price + (($tax / 100) * $services_price);
+        
+
+        $now = Carbon::now();
+        $duration = $request->input('duration_in_minutes');
+
+        $delivery_time = $now->copy()->addMinutes($duration);
+
         $order_data = [
             'user_car_id' => $request->input('user_car_id'),
             'address_id' => $request->input('address_id'),
             'payment_method' => $request->input('payment_method'),
             'user_id' => $this->user->id,
+            'delivery_time' => $delivery_time,
             'status' => 'new',
             'type' =>  'winch',
             'car_id' => UserCar::find($request->input('user_car_id'))->car_id,
             'products_price' => 0,
-            'services_price' => $request->input('price'),
-            'tax_price' => 0,
+            'services_price' => $services_price,
+            //'tax_price' => 0,
+            'tax_price' => $services_price * ($tax / 100),
             'delivery_price' => 0,
-            'total' => $request->input('price')
+            //'total' => $request->input('price')
+            'total' => $total_with_tax
         ];
 
         /** @var Order $order */
@@ -115,8 +145,8 @@ class WinchOrderService extends OrderService
 
             array_unshift($offers, $worker_offer_key);
 
-            Cache::put($order_offers_keys, $offers, 60);
-            Cache::put($worker_offer_key, $new_offer, 60);
+            Cache::put($order_offers_keys, $offers, 900);
+            Cache::put($worker_offer_key, $new_offer, 900);
         }
 
         return $offers;
@@ -127,11 +157,12 @@ class WinchOrderService extends OrderService
         $order_offers_keys = 'winch_order_offers_' . $request->input('order_id');
 
         $offers = [];
-
         if (Cache::has($order_offers_keys)) {
             $offers_keys = Cache::get($order_offers_keys);
+           
             foreach ($offers_keys as $offer_key) {
                 if (Cache::has($offer_key)) {
+                    // dd($offer_key);
                     $offers[] = Cache::get($offer_key);
                 }
             }
@@ -167,7 +198,7 @@ class WinchOrderService extends OrderService
 
             $order_res = new WinchOrderResource($order);
 
-            Cache::put($accepted_offer_key, $order_res, 60*10);
+            Cache::put($accepted_offer_key, $order_res, 900);
 
             return $order_res;
         }
@@ -182,5 +213,13 @@ class WinchOrderService extends OrderService
         Cache::forget($worker_offer_key);
 
         return $this->listWinchDriversOffers($request);
+    }
+
+    private function getPricePerKilo(): float
+    {
+        $setting = Setting::first();
+        $price = (float) ($setting?->price_per_kilo ?? 30);
+
+        return $price > 0 ? $price : 30;
     }
 }

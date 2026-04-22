@@ -13,9 +13,10 @@ class RegisterRequest extends AuthRegisterRequest
         return array_merge([
             'email' => ['required', 'email', Rule::unique('users', 'email')->where('role_id', 5)->whereNull('deleted_at')],
             'phone' => ['required', 'digits:11', 'starts_with:011,010,012,015', Rule::unique('users', 'phone')->where('role_id', 5)->whereNull('deleted_at')],
+            'password' => ['required', 'min:8', 'confirmed'],
             'id_image' => ['required', 'string'],
             'criminal_record_image' => ['required', 'string'],
-            'vendor_id' => ['required', Rule::exists('vendors', 'id')->where('type', 'workshop')->whereNull('deleted_at')],
+            'vendor_id' => ['required', Rule::exists('vendors', 'id')->where('type', 'emergency')->whereNull('deleted_at')],
         ], parent::rules());
     }
 

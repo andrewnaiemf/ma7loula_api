@@ -108,6 +108,14 @@ class BTVendorController extends Controller {
         ]);
     }
 
+
+    public function destroy(Request $request){
+        return $this->successResponse([
+            'tire' => $this->vendorService->destroy($request)
+        ]);
+       
+    }
+
     public function productDetails(ProductDetailsRequest $request){
         return $this->successResponse([
             'product' => $this->vendorService->productDetails($request)

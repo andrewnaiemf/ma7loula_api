@@ -30,20 +30,38 @@ class EmergencyService extends AuthService
 
     public function registerRequirements()
     {
-        return [
-            [
-                'title' => 'مسح رقم الهوية',
-                'body' => 'هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي'
-            ],
-            [
-                'title' => 'رخصة الشركة',
-                'body' => 'هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي'
-            ],
-            [
-                'title' => 'الرقم الضريبي',
-                'body' => 'هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي'
-            ]
-        ];
+        if(request()->header('lang') == 'ar') {
+            return [
+                [
+                    'title' => 'مسح رقم الهوية',
+                    'body' => 'هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي'
+                ],
+                [
+                    'title' => 'رخصة الشركة',
+                    'body' => 'هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي'
+                ],
+                [
+                    'title' => 'الرقم الضريبي',
+                    'body' => 'هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي'
+                ]
+            ];
+        }else{
+            return [
+                [
+                    'title' => 'ID Number Scan',
+                    'body' => 'It is a long-established fact that a reader will be distracted by the readable content of a page when looking at its layout.'
+                ],
+                [
+                    'title' => 'Company License',
+                    'body' => 'It is a long-established fact that a reader will be distracted by the readable content of a page when looking at its layout.'
+                ],
+                [
+                    'title' => 'Tax Number',
+                    'body' => 'It is a long-established fact that a reader will be distracted by the readable content of a page when looking at its layout.'
+                ]
+            ];
+
+        }
     }
 
     public function UserResource($user): JsonResource
@@ -188,8 +206,8 @@ class EmergencyService extends AuthService
 
             array_unshift($offers, $worker_offer_key);
 
-            Cache::put($order_offers_keys, $offers, 60);
-            Cache::put($worker_offer_key, $new_offer, 60);
+            Cache::put($order_offers_keys, $offers, 900);
+            Cache::put($worker_offer_key, $new_offer, 900);
 
             Cache::forget('emergency_request_' . $worker->id . '_' .  $request->input('order_id'));
 
@@ -244,7 +262,13 @@ class EmergencyService extends AuthService
         $order_services_total = array_sum(array_column($services, 'price'));
 
         $order = Order::find($request->input('order_id'));
-        $order->services()->sync($services);
+              //  $order->services()->sync($services);
+
+        $pivot_data = [];
+        foreach ($services as $id => $service) {
+            $pivot_data[$id] = ['price' => $service['price']];
+        }
+        $order->services()->sync($pivot_data);
 
         $order->update([
             'services_price' => $order->services_price + $order_services_total,
@@ -256,6 +280,11 @@ class EmergencyService extends AuthService
             'services_price' => $order_vendor->services_price + $order_services_total,
             'total' =>  $order_vendor->total + $order_services_total,
         ]);
+        
+        
+        $worker = Auth::user()->worker;
+        $order_key = 'accepted_emergency_request_' . $worker->id;
+        Cache::forget($order_key);
 
         return new EmergencyOrderResource($order);
     }

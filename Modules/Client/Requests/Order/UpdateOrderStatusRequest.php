@@ -16,7 +16,11 @@ class UpdateOrderStatusRequest extends PublicRequest
                 ],
                 'status' => [
                     'required', 'string'
+                ],
+                'reason' => [
+                    'nullable', 'string'
                 ]
+
             ];
     }
 }

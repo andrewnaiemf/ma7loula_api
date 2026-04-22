@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
 
             $table->string('name')->index();
+            $table->string('sku')->index();
             $table->mediumText('description')->nullable()->default(null);
 
             $table->unsignedBigInteger('category_id')->index();

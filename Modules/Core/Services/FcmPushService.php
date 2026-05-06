@@ -44,7 +44,6 @@ class FcmPushService
             'https://fcm.googleapis.com/v1/projects/%s/messages:send',
             $projectId
         );
-    dd($payload,'payload');
         $response = Http::withToken($accessToken)
             ->acceptJson()
             ->post($url, $payload);

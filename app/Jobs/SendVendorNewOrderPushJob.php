@@ -59,7 +59,10 @@ class SendVendorNewOrderPushJob implements ShouldQueue
                     'New order',
                     'You have a new order #'.$this->orderId,
                     [
+                        'event_type' => 'new_order_created',
+                        'action_required_for' => 'vendor',
                         'order_id' => (string) $this->orderId,
+                        'status' => 'new',
                         'type' => $this->orderType,
                         'vendor_id' => (string) $vendor->id,
                     ]

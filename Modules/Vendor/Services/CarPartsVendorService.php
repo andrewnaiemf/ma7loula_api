@@ -3,6 +3,7 @@
 namespace Modules\Vendor\Services;
 
 use App\Enums\OrderVendorLineStatus;
+use App\Jobs\SendCustomerOrderStatusPushJob;
 use App\Models\Media;
 use App\Models\OrderVendor;
 use App\Models\Product;
@@ -276,9 +277,13 @@ class CarPartsVendorService extends AuthService
         if (! $order) {
             throw new HttpErrorException(__('Order line not found.'), [], 404);
         }
+        $previousStatus = (string) $order->status;
         $order->update([
             'status' => $request->input('status')
         ]);
+        if ($previousStatus !== (string) $order->status) {
+            SendCustomerOrderStatusPushJob::dispatch((int) $order->id);
+        }
         return new OrderResource($order);
     }
 

@@ -11,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Modules\Core\Services\FcmPushService;
 
-class SendCustomerOfferPushJob implements ShouldQueue
+class SendCustomerOrderStatusPushJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -37,30 +37,33 @@ class SendCustomerOfferPushJob implements ShouldQueue
         }
 
         if ($tokens->isEmpty()) {
-            Log::info('Customer offer push skipped: no FCM token', [
+            Log::info('Customer order status push skipped: no FCM token', [
                 'order_id' => $line->order_id,
                 'order_vendor_id' => $line->id,
                 'customer_user_id' => $customer->id,
+                'status' => $line->status,
             ]);
 
             return;
         }
 
+        $title = 'Order status updated';
+        $body = 'Order #'.$line->order_id.' status changed to '.$line->status;
+
         foreach ($tokens as $deviceToken) {
             $fcm->sendToToken(
                 (string) $deviceToken,
-                'New vendor offer',
-                'A vendor sent a new price offer for order #'.$line->order_id,
+                $title,
+                $body,
                 [
-                    'event_type' => 'vendor_offer_created',
+                    'event_type' => 'vendor_updated_order_status',
                     'action_required_for' => 'customer',
-                    'kind' => 'vendor_offer_created',
+                    'kind' => 'order_status_updated',
                     'order_id' => (string) $line->order_id,
                     'status' => (string) $line->order->status,
                     'order_vendor_status' => (string) $line->status,
                     'order_vendor_id' => (string) $line->id,
                     'type' => (string) $line->order->type,
-                    'offered_total' => (string) ($line->offered_total ?? ''),
                     'vendor_id' => (string) $line->vendor_id,
                 ]
             );

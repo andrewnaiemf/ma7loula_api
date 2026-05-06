@@ -55,14 +55,19 @@ class SendVendorOfferDecisionPushJob implements ShouldQueue
             : 'Customer rejected your offer for order #'.$line->order_id;
 
         foreach ($tokens as $deviceToken) {
+            $eventType = $accepted ? 'customer_accepted_vendor_offer' : 'customer_rejected_vendor_offer';
             $fcm->sendToToken(
                 (string) $deviceToken,
                 $title,
                 $body,
                 [
+                    'event_type' => $eventType,
+                    'action_required_for' => 'vendor',
                     'kind' => 'vendor_offer_decision',
                     'decision' => $this->decision,
                     'order_id' => (string) $line->order_id,
+                    'status' => (string) $line->order->status,
+                    'order_vendor_status' => (string) $line->status,
                     'order_vendor_id' => (string) $line->id,
                     'type' => (string) $line->order->type,
                     'vendor_id' => (string) $line->vendor_id,

@@ -50,9 +50,11 @@ class SendVendorOfferDecisionPushJob implements ShouldQueue
 
         $accepted = $this->decision === 'accept';
         $title = $accepted ? 'Offer accepted' : 'Offer rejected';
+        /** Vendor-facing number: order_vendors.id (not orders.id). */
+        $vendorOrderNo = (string) $line->id;
         $body = $accepted
-            ? 'Customer accepted your offer for order #'.$line->order_id
-            : 'Customer rejected your offer for order #'.$line->order_id;
+            ? 'Customer accepted your offer for order #'.$vendorOrderNo
+            : 'Customer rejected your offer for order #'.$vendorOrderNo;
 
         $offeredTotal = (string) $line->total;
 

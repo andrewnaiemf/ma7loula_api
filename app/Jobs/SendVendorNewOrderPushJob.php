@@ -29,17 +29,6 @@ class SendVendorNewOrderPushJob
             return;
         }
 
-        $title = match ($this->orderType) {
-            'winch', 'emergency' => 'New service request',
-            default => 'New order',
-        };
-
-        $body = match ($this->orderType) {
-            'winch' => 'You have a new winch request #'.$this->orderId,
-            'emergency' => 'You have a new emergency request #'.$this->orderId,
-            default => 'You have a new order #'.$this->orderId,
-        };
-
         $vendors = Vendor::query()
             ->whereIn('id', $this->vendorIds)
             ->with(['user.fcmTokens'])
@@ -74,6 +63,20 @@ class SendVendorNewOrderPushJob
                     ->first();
 
                 $orderVendorId = $line?->id;
+                /** Shown to vendor in notification (order_vendors.id); fallback if line missing. */
+                $vendorOrderNo = (string) ($orderVendorId ?? $this->orderId);
+
+                $title = match ($this->orderType) {
+                    'winch', 'emergency' => 'New service request',
+                    default => 'New order',
+                };
+
+                $body = match ($this->orderType) {
+                    'winch' => 'You have a new winch request #'.$vendorOrderNo,
+                    'emergency' => 'You have a new emergency request #'.$vendorOrderNo,
+                    default => 'You have a new order #'.$vendorOrderNo,
+                };
+
                 $offeredTotal = $line !== null
                     ? (string) $line->total
                     : (string) (Order::query()->whereKey($this->orderId)->value('total') ?? '');

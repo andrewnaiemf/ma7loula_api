@@ -54,6 +54,8 @@ class SendVendorOfferDecisionPushJob implements ShouldQueue
             ? 'Customer accepted your offer for order #'.$line->order_id
             : 'Customer rejected your offer for order #'.$line->order_id;
 
+        $offeredTotal = (string) $line->total;
+
         foreach ($tokens as $deviceToken) {
             $eventType = $accepted ? 'customer_accepted_vendor_offer' : 'customer_rejected_vendor_offer';
             $fcm->sendToToken(
@@ -61,6 +63,9 @@ class SendVendorOfferDecisionPushJob implements ShouldQueue
                 $title,
                 $body,
                 [
+                    'title' => $title,
+                    'body' => $body,
+                    'offered_total' => $offeredTotal,
                     'event_type' => $eventType,
                     'action_required_for' => 'vendor',
                     'kind' => 'vendor_offer_decision',

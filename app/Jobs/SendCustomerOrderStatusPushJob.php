@@ -49,6 +49,7 @@ class SendCustomerOrderStatusPushJob implements ShouldQueue
 
         $title = 'Order status updated';
         $body = 'Order #'.$line->order_id.' status changed to '.$line->status;
+        $offeredTotal = (string) $line->total;
 
         foreach ($tokens as $deviceToken) {
             $fcm->sendToToken(
@@ -56,6 +57,9 @@ class SendCustomerOrderStatusPushJob implements ShouldQueue
                 $title,
                 $body,
                 [
+                    'title' => $title,
+                    'body' => $body,
+                    'offered_total' => $offeredTotal,
                     'event_type' => 'vendor_updated_order_status',
                     'action_required_for' => 'customer',
                     'kind' => 'order_status_updated',

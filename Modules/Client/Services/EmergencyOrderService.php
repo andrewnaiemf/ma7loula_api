@@ -2,15 +2,16 @@
 
 namespace Modules\Client\Services;
 
+use App\Jobs\SendVendorNewOrderPushJob;
 use App\Models\Order;
 use App\Models\OrderEmergency;
-use App\Models\OrderVendor;
 use App\Models\User;
 use App\Models\UserCar;
 use App\Models\Worker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Modules\Client\Jobs\SendEmergencyOrderRequests;
 use Modules\Client\Requests\EmergencyOrder\CreateEmergencyOrderRequest;
 use Modules\Client\Requests\WinchOrder\AcceptWinchOffer;
@@ -31,7 +32,7 @@ class EmergencyOrderService extends OrderService
     {
         $products_price = 300;
         $tax = \App\Models\Setting::first()?->tax_percentage??10;
-        $total_with_tax = $products_price + ($products_price * $tax / 100);    
+        $total_with_tax = $products_price + ($products_price * $tax / 100);
         $order_data = [
             'user_car_id' => $request->input('user_car_id'),
             'user_id' => $this->user->id,
@@ -78,6 +79,22 @@ class EmergencyOrderService extends OrderService
         ]);
 
         SendEmergencyOrderRequests::dispatch($orderEmergency);
+
+        $vendorIds = Worker::query()
+            ->where('type', 'emergency')
+            ->whereNull('deleted_at')
+            ->distinct()
+            ->pluck('vendor_id')
+            ->filter()
+            ->values()
+            ->all();
+
+        if ($vendorIds === []) {
+            Log::info('Emergency order: no emergency workers / vendor ids for FCM', ['order_id' => $order->id]);
+        } else {
+            $this->ensureServiceOrderVendorStubs($order, $vendorIds);
+            SendVendorNewOrderPushJob::dispatch($vendorIds, $order->id, 'emergency');
+        }
 
         return new EmergencyOrderResource($order);
     }
@@ -136,18 +153,10 @@ class EmergencyOrderService extends OrderService
                 'worker_id' => $request->input('worker_id')
             ]);
 
-            OrderVendor::create(
-                [
-                    'order_id' => $request->input('order_id'),
-                    'vendor_id' => $request->input('vendor_id'),
-                    'worker_id' => $request->input('worker_id'),
-                    'status' => $order->status,
-                    'products_price' => $order->products_price,
-                    'services_price' => $order->services_price,
-                    'tax_price' => $order->tax_price,
-                    'delivery_price' => $order->delivery_price,
-                    'total' => $order->total,
-                ]
+            $this->recordServiceOrderAcceptedVendor(
+                $order,
+                (int) $request->input('vendor_id'),
+                (int) $request->input('worker_id')
             );
 
             $order_res =  new EmergencyOrderResource($order);

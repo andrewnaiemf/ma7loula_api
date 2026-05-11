@@ -2,18 +2,20 @@
 
 namespace App\Jobs;
 
+use App\Models\Order;
+use App\Models\OrderVendor;
 use App\Models\Vendor;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Modules\Core\Services\FcmPushService;
 
-class SendVendorNewOrderPushJob implements ShouldQueue
+/**
+ * Sends FCM to vendor account users for a new order.
+ * Runs synchronously (no queue worker required) so pushes are reliable from HTTP requests.
+ */
+class SendVendorNewOrderPushJob
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
 
     public function __construct(
         public array $vendorIds,
@@ -26,6 +28,17 @@ class SendVendorNewOrderPushJob implements ShouldQueue
         if ($this->vendorIds === []) {
             return;
         }
+
+        $title = match ($this->orderType) {
+            'winch', 'emergency' => 'New service request',
+            default => 'New order',
+        };
+
+        $body = match ($this->orderType) {
+            'winch' => 'You have a new winch request #'.$this->orderId,
+            'emergency' => 'You have a new emergency request #'.$this->orderId,
+            default => 'You have a new order #'.$this->orderId,
+        };
 
         $vendors = Vendor::query()
             ->whereIn('id', $this->vendorIds)
@@ -54,18 +67,35 @@ class SendVendorNewOrderPushJob implements ShouldQueue
             }
 
             foreach ($tokens as $deviceToken) {
+                $line = OrderVendor::query()
+                    ->where('order_id', $this->orderId)
+                    ->where('vendor_id', $vendor->id)
+                    ->whereNull('deleted_at')
+                    ->first();
+
+                $orderVendorId = $line?->id;
+                $offeredTotal = $line !== null
+                    ? (string) $line->total
+                    : (string) (Order::query()->whereKey($this->orderId)->value('total') ?? '');
+
+                $data = [
+                    'title' => $title,
+                    'body' => $body,
+                    'offered_total' => $offeredTotal,
+                    'event_type' => 'new_order_created',
+                    'action_required_for' => 'vendor',
+                    'order_id' => (string) $this->orderId,
+                    'order_vendor_id' => $orderVendorId !== null ? (string) $orderVendorId : '',
+                    'status' => 'new',
+                    'type' => $this->orderType,
+                    'vendor_id' => (string) $vendor->id,
+                ];
+
                 $ok = $fcm->sendToToken(
                     (string) $deviceToken,
-                    'New order',
-                    'You have a new order #'.$this->orderId,
-                    [
-                        'event_type' => 'new_order_created',
-                        'action_required_for' => 'vendor',
-                        'order_id' => (string) $this->orderId,
-                        'status' => 'new',
-                        'type' => $this->orderType,
-                        'vendor_id' => (string) $vendor->id,
-                    ]
+                    $title,
+                    $body,
+                    $data
                 );
 
                 if (! $ok) {

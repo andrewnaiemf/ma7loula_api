@@ -327,4 +327,69 @@ class OrderService
 
         return new OrderResource($order);
     }
+
+    /**
+     * Pivot attributes for order_vendors rows on service orders (winch / emergency).
+     */
+    protected function serviceOrderVendorPivotFromOrder(Order $order, ?int $workerId, ?string $lineStatus = null): array
+    {
+        $dt = $order->delivery_time;
+        if ($dt instanceof Carbon) {
+            $deliveryStr = $dt->format('Y-m-d H:i:s');
+        } elseif (is_string($dt) && $dt !== '') {
+            $deliveryStr = $dt;
+        } else {
+            $deliveryStr = now()->format('Y-m-d H:i:s');
+        }
+
+        return [
+            'worker_id' => $workerId,
+            'status' => $lineStatus ?? OrderVendorLineStatus::New->value,
+            'has_service' => (bool) ($order->has_service ?? false),
+            'delivery_time' => $deliveryStr,
+            'products_price' => (string) $order->products_price,
+            'services_price' => (string) $order->services_price,
+            'tax_price' => (string) $order->tax_price,
+            'delivery_price' => (string) $order->delivery_price,
+            'total' => (string) $order->total,
+        ];
+    }
+
+    /**
+     * Ensure each notified vendor has an order_vendors row so vendor apps can open details by order_vendor id.
+     *
+     * @param  list<int>  $vendorIds
+     */
+    protected function ensureServiceOrderVendorStubs(Order $order, array $vendorIds): void
+    {
+        foreach ($vendorIds as $vendorId) {
+            OrderVendor::firstOrCreate(
+                [
+                    'order_id' => $order->id,
+                    'vendor_id' => (int) $vendorId,
+                ],
+                $this->serviceOrderVendorPivotFromOrder($order, null, OrderVendorLineStatus::New->value)
+            );
+        }
+    }
+
+    /**
+     * When a worker/vendor accepts a service order, attach worker to the line and cancel other pending stubs.
+     */
+    protected function recordServiceOrderAcceptedVendor(Order $order, int $vendorId, int $workerId): void
+    {
+        OrderVendor::updateOrCreate(
+            [
+                'order_id' => $order->id,
+                'vendor_id' => $vendorId,
+            ],
+            $this->serviceOrderVendorPivotFromOrder($order, $workerId, (string) $order->status)
+        );
+
+        OrderVendor::query()
+            ->where('order_id', $order->id)
+            ->where('vendor_id', '!=', $vendorId)
+            ->whereNull('worker_id')
+            ->update(['status' => OrderVendorLineStatus::Cancelled->value]);
+    }
 }

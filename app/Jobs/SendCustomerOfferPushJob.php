@@ -46,12 +46,19 @@ class SendCustomerOfferPushJob implements ShouldQueue
             return;
         }
 
+        $title = 'New vendor offer';
+        $body = 'A vendor sent a new price offer for order #'.$line->order_id;
+        $offeredTotal = (string) ($line->offered_total ?? '');
+
         foreach ($tokens as $deviceToken) {
             $fcm->sendToToken(
                 (string) $deviceToken,
-                'New vendor offer',
-                'A vendor sent a new price offer for order #'.$line->order_id,
+                $title,
+                $body,
                 [
+                    'title' => $title,
+                    'body' => $body,
+                    'offered_total' => $offeredTotal,
                     'event_type' => 'vendor_offer_created',
                     'action_required_for' => 'customer',
                     'kind' => 'vendor_offer_created',
@@ -60,7 +67,6 @@ class SendCustomerOfferPushJob implements ShouldQueue
                     'order_vendor_status' => (string) $line->status,
                     'order_vendor_id' => (string) $line->id,
                     'type' => (string) $line->order->type,
-                    'offered_total' => (string) ($line->offered_total ?? ''),
                     'vendor_id' => (string) $line->vendor_id,
                 ]
             );

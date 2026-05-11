@@ -2,8 +2,8 @@
 
 namespace Modules\Client\Services;
 
+use App\Jobs\SendVendorNewOrderPushJob;
 use App\Models\Order;
-use App\Models\OrderVendor;
 use App\Models\OrderWinch;
 use App\Models\Setting;
 use App\Models\User;
@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Modules\Client\Jobs\SendWinchOrderRequests;
 use Modules\Client\Requests\WinchOrder\AcceptWinchOffer;
 use Modules\Client\Requests\WinchOrder\CalculateWinchOrderPriceRequest;
@@ -122,6 +123,21 @@ class WinchOrderService extends OrderService
 
         SendWinchOrderRequests::dispatch($orderWinch);
 
+        $vendorIds = Worker::query()
+            ->where('type', 'winch')
+            ->whereNull('deleted_at')
+            ->distinct()
+            ->pluck('vendor_id')
+            ->filter()
+            ->values()
+            ->all();
+        if ($vendorIds === []) {
+            Log::info('Winch order: no winch workers / vendor ids for FCM', ['order_id' => $order->id]);
+        } else {
+            $this->ensureServiceOrderVendorStubs($order, $vendorIds);
+            SendVendorNewOrderPushJob::dispatch($vendorIds, $order->id, 'winch');
+        }
+
         return new WinchOrderResource($order);
     }
 
@@ -182,18 +198,10 @@ class WinchOrderService extends OrderService
                 'worker_id' => $request->input('worker_id')
             ]);
 
-            OrderVendor::create(
-                [
-                    'order_id' => $request->input('order_id'),
-                    'vendor_id' => $request->input('vendor_id'),
-                    'worker_id' => $request->input('worker_id'),
-                    'status' => $order->status,
-                    'products_price' => $order->products_price,
-                    'services_price' => $order->services_price,
-                    'tax_price' => $order->tax_price,
-                    'delivery_price' => $order->delivery_price,
-                    'total' => $order->total,
-                ]
+            $this->recordServiceOrderAcceptedVendor(
+                $order,
+                (int) $request->input('vendor_id'),
+                (int) $request->input('worker_id')
             );
 
             $order_res = new WinchOrderResource($order);

@@ -61,6 +61,16 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1/client')->group(functi
         });
     });
 
+    // Alias: singular prefix (same handlers as tires)
+    Route::prefix('tire')->middleware(['auth:sanctum'])->group(function () {
+        Route::get('order-details', [OrderController::class, 'orderDetails']);
+        Route::get('list-orders', [OrderController::class, 'listTiresOrder']);
+        Route::post('create-order', [OrderController::class, 'createTiresOrder']);
+        Route::post('update-order-status', [OrderController::class, 'updateOrderStatus']);
+        Route::post('respond-vendor-offer', [OrderController::class, 'respondVendorOfferTire']);
+        Route::post('rate-order', [OrderController::class, 'rateOrder']);
+    });
+
 
     Route::prefix("batteries")->group(function () {
         Route::get('volatages', [BatteryController::class, 'listVolts']);
@@ -78,6 +88,16 @@ Route::middleware(ValidateHeaders::class)->prefix('api/v1/client')->group(functi
             Route::post('respond-vendor-offer', [OrderController::class, 'respondVendorOfferBattery']);
             Route::post('rate-order', [OrderController::class, 'rateOrder']);
         });
+    });
+
+    // Alias: singular prefix (same handlers as batteries)
+    Route::prefix('battery')->middleware(['auth:sanctum'])->group(function () {
+        Route::get('order-details', [OrderController::class, 'orderDetails']);
+        Route::get('list-orders', [OrderController::class, 'lisBatteryOrder']);
+        Route::post('create-order', [OrderController::class, 'createBatteryOrder']);
+        Route::post('update-order-status', [OrderController::class, 'updateOrderStatus']);
+        Route::post('respond-vendor-offer', [OrderController::class, 'respondVendorOfferBattery']);
+        Route::post('rate-order', [OrderController::class, 'rateOrder']);
     });
 
 

@@ -149,7 +149,11 @@ class OrderService
             ->first();
 
         if (! $ov) {
-            throw new HttpErrorException(__('Order vendor line not found for this customer/order type.'), [], 404);
+            throw new HttpErrorException(
+                __('Order vendor line not found. Use the respond-vendor-offer endpoint that matches the order type (car-parts, tires, or batteries).'),
+                [],
+                404
+            );
         }
 
         if ($ov->status !== OrderVendorLineStatus::OfferPending->value) {

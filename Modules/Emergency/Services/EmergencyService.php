@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Cache;
 use Modules\Client\Resources\EmergencyOrder\EmergencyOrderResource;
 use Modules\Client\Resources\WinchOrder\WinchOrderOfferResource;
 use Modules\Core\Services\AuthService;
+use Modules\Core\Services\OrderFcmNotifier;
 use Modules\Emergency\Requests\ListOrdersRequest;
 use Modules\Emergency\Requests\OrdersDetailsRequest;
 use Modules\Emergency\Requests\SendOfferRequest;
@@ -156,11 +157,22 @@ class EmergencyService extends AuthService
     public function updateOrderStatus(UpdateOrderStatusRequest $request)
     {
         $orderVendor = OrderVendor::where('order_id', $request->input('id'))->first();
+        if (! $orderVendor) {
+            $order = Order::find($request->input('id'));
+
+            return $order ? new EmergencyOrderResource($order) : null;
+        }
+
+        $previousStatus = (string) $orderVendor->status;
         $orderVendor->update([
             'status' => $request->input('status')
         ]);
 
         $order = $orderVendor->order;
+
+        if ($previousStatus !== (string) $orderVendor->status) {
+            app(OrderFcmNotifier::class)->notifyCustomerOrderStatusUpdate($orderVendor->fresh(['order.user']));
+        }
 
         return new EmergencyOrderResource($order);
     }
@@ -211,6 +223,11 @@ class EmergencyService extends AuthService
             Cache::put($worker_offer_key, $new_offer, 900);
 
             Cache::forget('emergency_request_' . $worker->id . '_' .  $request->input('order_id'));
+
+            $order = Order::with('user')->find($request->input('order_id'));
+            if ($order) {
+                app(OrderFcmNotifier::class)->notifyCustomerServiceOffer($order, $worker);
+            }
 
             return true;
         }
@@ -281,7 +298,8 @@ class EmergencyService extends AuthService
             'services_price' => $order_vendor->services_price + $order_services_total,
             'total' =>  $order_vendor->total + $order_services_total,
         ]);
-        
+
+        app(OrderFcmNotifier::class)->notifyCustomerOrderStatusUpdate($order_vendor->fresh(['order.user']));
         
         $worker = Auth::user()->worker;
         $order_key = 'accepted_emergency_request_' . $worker->id;

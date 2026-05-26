@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Modules\Client\Jobs\SendWinchOrderRequests;
+use Modules\Core\Services\OrderFcmNotifier;
 use Modules\Client\Requests\WinchOrder\AcceptWinchOffer;
 use Modules\Client\Requests\WinchOrder\CalculateWinchOrderPriceRequest;
 use Modules\Client\Requests\WinchOrder\CreateWinchOrderRequest;
@@ -121,21 +122,25 @@ class WinchOrderService extends OrderService
 
         ]);
 
-        SendWinchOrderRequests::dispatch($orderWinch);
+        SendWinchOrderRequests::dispatchSync($orderWinch);
 
-        $vendorIds = Worker::query()
+        $workers = Worker::query()
             ->where('type', 'winch')
             ->whereNull('deleted_at')
-            ->distinct()
-            ->pluck('vendor_id')
-            ->filter()
-            ->values()
-            ->all();
-        if ($vendorIds === []) {
-            Log::info('Winch order: no winch workers / vendor ids for FCM', ['order_id' => $order->id]);
-        } else {
+            ->get(['id', 'vendor_id']);
+
+        $vendorIds = $workers->pluck('vendor_id')->filter()->unique()->values()->all();
+        $workerIds = $workers->pluck('id')->all();
+
+        if ($vendorIds !== []) {
             $this->ensureServiceOrderVendorStubs($order, $vendorIds);
             SendVendorNewOrderPushJob::dispatch($vendorIds, $order->id, 'winch');
+        }
+
+        if ($workerIds !== []) {
+            app(OrderFcmNotifier::class)->notifyWorkersNewServiceRequest($order, 'winch', $workerIds);
+        } else {
+            Log::info('Winch order: no winch workers for FCM', ['order_id' => $order->id]);
         }
 
         return new WinchOrderResource($order);
@@ -204,6 +209,11 @@ class WinchOrderService extends OrderService
                 (int) $request->input('worker_id')
             );
 
+            $worker = Worker::find($request->input('worker_id'));
+            if ($worker) {
+                app(OrderFcmNotifier::class)->notifyWorkerOfferDecision($order, $worker, 'accept');
+            }
+
             $order_res = new WinchOrderResource($order);
 
             Cache::put($accepted_offer_key, $order_res, 900);
@@ -219,6 +229,12 @@ class WinchOrderService extends OrderService
         $worker_offer_key = 'winch_order_offers_' . $request->input('order_id') . '_' . $request->input('worker_id');
 
         Cache::forget($worker_offer_key);
+
+        $order = Order::find($request->input('order_id'));
+        $worker = Worker::find($request->input('worker_id'));
+        if ($order && $worker) {
+            app(OrderFcmNotifier::class)->notifyWorkerOfferDecision($order, $worker, 'reject');
+        }
 
         return $this->listWinchDriversOffers($request);
     }

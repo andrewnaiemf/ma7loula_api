@@ -3,15 +3,14 @@
 namespace Modules\Client\Jobs;
 
 use App\Models\OrderEmergency;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Modules\Client\Resources\EmergencyOrder\EmergencyOrderResource;
-
-class SendEmergencyOrderRequests implements ShouldQueue
+class SendEmergencyOrderRequests
 {
-    use Queueable;
+    use Dispatchable, Queueable;
 
     /**
      * Create a new job instance.
@@ -27,7 +26,10 @@ class SendEmergencyOrderRequests implements ShouldQueue
     public function handle(): void
     {
         $winch_order = $this->order;
-        $order = $winch_order->order;
+        $order = $winch_order->order()->with('user')->first();
+        if (! $order) {
+            return;
+        }
         $currentLatitude = $winch_order->lat;
         $currentLongitude = $winch_order->lon;
 
@@ -39,7 +41,6 @@ class SendEmergencyOrderRequests implements ShouldQueue
             ->get();
 
         $order_res = new EmergencyOrderResource($order);
-
         foreach ($workers as $worker) {
             $worker_key = 'emergency_request_' . $worker->id;
             $order_key = 'emergency_request_' . $worker->id . '_' . $order->id;

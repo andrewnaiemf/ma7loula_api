@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Cache;
 use Modules\Client\Resources\WinchOrder\WinchOrderOfferResource;
 use Modules\Client\Resources\WinchOrder\WinchOrderResource;
 use Modules\Core\Services\AuthService;
+use Modules\Core\Services\OrderFcmNotifier;
 use Modules\Vendor\Resources\BT\Vendor\OrderResource;
 use Modules\Winch\Requests\ListOrdersRequest;
 use Modules\Winch\Requests\OrdersDetailsRequest;
@@ -156,11 +157,22 @@ class WinchService extends AuthService
     public function updateOrderStatus(UpdateOrderStatusRequest $request)
     {
         $orderVendor = OrderVendor::where('order_id', $request->input('id'))->first();
+        if (! $orderVendor) {
+            $order = Order::find($request->input('id'));
+
+            return $order ? new WinchOrderResource($order) : null;
+        }
+
+        $previousStatus = (string) $orderVendor->status;
         $orderVendor->update([
             'status' => $request->input('status')
         ]);
 
         $order = $orderVendor->order;
+
+        if ($previousStatus !== (string) $orderVendor->status) {
+            app(OrderFcmNotifier::class)->notifyCustomerOrderStatusUpdate($orderVendor->fresh(['order.user']));
+        }
         
         if($request->input('status') == 'completed'){
             $worker = Auth::user()->worker;
@@ -216,6 +228,11 @@ class WinchService extends AuthService
             Cache::put($worker_offer_key, $new_offer, 900);
 
             Cache::forget('winch_request_' . $worker->id . '_' .  $request->input('order_id'));
+
+            $order = Order::with('user')->find($request->input('order_id'));
+            if ($order) {
+                app(OrderFcmNotifier::class)->notifyCustomerServiceOffer($order, $worker);
+            }
 
             return true;
         }

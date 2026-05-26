@@ -3,18 +3,14 @@
 namespace Modules\Client\Jobs;
 
 use App\Models\OrderWinch;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Modules\Client\Resources\WinchOrder\WinchOrderResource;
-
-class SendWinchOrderRequests implements ShouldQueue
+class SendWinchOrderRequests
 {
-    use Queueable;
+    use Dispatchable, Queueable;
 
     /**
      * Create a new job instance.
@@ -30,7 +26,10 @@ class SendWinchOrderRequests implements ShouldQueue
     public function handle(): void
     {
         $winch_order = $this->order;
-        $order = $winch_order->order;
+        $order = $winch_order->order()->with('user')->first();
+        if (! $order) {
+            return;
+        }
         $currentLatitude = $winch_order->from_lat;
         $currentLongitude = $winch_order->from_lon;
 
@@ -42,7 +41,6 @@ class SendWinchOrderRequests implements ShouldQueue
             ->get();
 
         $order_res = new WinchOrderResource($order);
-
         foreach ($workers as $worker) {
             $worker_key = 'winch_request_' . $worker->id;
             $order_key = 'winch_request_' . $worker->id . '_' . $order->id;

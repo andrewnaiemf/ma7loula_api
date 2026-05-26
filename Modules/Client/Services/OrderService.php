@@ -27,6 +27,7 @@ use Modules\Client\Resources\OrderCarPartsResource;
 use Modules\Client\Resources\OrderResource;
 use Modules\Client\Resources\WinchOrder\WinchOrderResource;
 use Modules\Core\Exceptions\HttpErrorException;
+use Modules\Core\Services\OrderFcmNotifier;
 
 class OrderService
 {
@@ -253,10 +254,15 @@ class OrderService
     public function updateOrderStatus(UpdateOrderStatusRequest $request, string $type = 'car-parts')
     {
         $order = Order::find($request->input('id'));
+        $previousStatus = $order ? (string) $order->status : null;
         $order->update([
             'status' => $request->input('status'),
             'reason' => $request->input('reason')??NULL
         ]);
+
+        if ($order && $previousStatus !== (string) $order->status && in_array($type, ['winch', 'emergency'], true)) {
+            app(OrderFcmNotifier::class)->notifyWorkerOrderStatusUpdate($order->fresh());
+        }
 
         return $this->returnResource($order, $type);
     }

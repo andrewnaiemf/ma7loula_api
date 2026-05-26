@@ -3,17 +3,13 @@
 namespace App\Jobs;
 
 use App\Models\OrderVendor;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Modules\Core\Services\FcmPushService;
 
-class SendVendorOfferDecisionPushJob implements ShouldQueue
+class SendVendorOfferDecisionPushJob
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
 
     public function __construct(
         public int $orderVendorId,

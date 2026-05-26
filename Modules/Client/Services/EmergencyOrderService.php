@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Modules\Client\Jobs\SendEmergencyOrderRequests;
+use Modules\Core\Services\OrderFcmNotifier;
 use Modules\Client\Requests\EmergencyOrder\CreateEmergencyOrderRequest;
 use Modules\Client\Requests\WinchOrder\AcceptWinchOffer;
 use Modules\Client\Resources\EmergencyOrder\EmergencyOrderResource;
@@ -78,22 +79,25 @@ class EmergencyOrderService extends OrderService
             'location' => $request->input('location')
         ]);
 
-        SendEmergencyOrderRequests::dispatch($orderEmergency);
+        SendEmergencyOrderRequests::dispatchSync($orderEmergency);
 
-        $vendorIds = Worker::query()
+        $workers = Worker::query()
             ->where('type', 'emergency')
             ->whereNull('deleted_at')
-            ->distinct()
-            ->pluck('vendor_id')
-            ->filter()
-            ->values()
-            ->all();
+            ->get(['id', 'vendor_id']);
 
-        if ($vendorIds === []) {
-            Log::info('Emergency order: no emergency workers / vendor ids for FCM', ['order_id' => $order->id]);
-        } else {
+        $vendorIds = $workers->pluck('vendor_id')->filter()->unique()->values()->all();
+        $workerIds = $workers->pluck('id')->all();
+
+        if ($vendorIds !== []) {
             $this->ensureServiceOrderVendorStubs($order, $vendorIds);
             SendVendorNewOrderPushJob::dispatch($vendorIds, $order->id, 'emergency');
+        }
+
+        if ($workerIds !== []) {
+            app(OrderFcmNotifier::class)->notifyWorkersNewServiceRequest($order, 'emergency', $workerIds);
+        } else {
+            Log::info('Emergency order: no emergency workers for FCM', ['order_id' => $order->id]);
         }
 
         return new EmergencyOrderResource($order);
@@ -159,6 +163,11 @@ class EmergencyOrderService extends OrderService
                 (int) $request->input('worker_id')
             );
 
+            $worker = Worker::find($request->input('worker_id'));
+            if ($worker) {
+                app(OrderFcmNotifier::class)->notifyWorkerOfferDecision($order, $worker, 'accept');
+            }
+
             $order_res =  new EmergencyOrderResource($order);
 
             Cache::put($accepted_offer_key, $order_res, 900);
@@ -190,6 +199,12 @@ class EmergencyOrderService extends OrderService
         $offers = json_decode(json_encode($offers));
 
         Cache::put($cache_key, (array) $offers, 900);
+
+        $order = Order::find($request->input('order_id'));
+        $worker = Worker::find($request->input('worker_id'));
+        if ($order && $worker) {
+            app(OrderFcmNotifier::class)->notifyWorkerOfferDecision($order, $worker, 'reject');
+        }
 
         return $this->listOffers($request);
     }

@@ -4,6 +4,33 @@ All order-related pushes use **FCM HTTP v1**. Payload includes a visible **`noti
 
 Register the device token on **login/register** (`fcm_token` and/or `user_fcm_tokens`). Without a token, the API logs a skip and no push is sent.
 
+### High-priority delivery (background/killed app)
+
+All notifications include platform-specific settings for reliable delivery:
+
+```json
+{
+  "message": {
+    "notification": { "title": "...", "body": "..." },
+    "data": { ... },
+    "android": {
+      "priority": "HIGH",
+      "notification": {
+        "channel_id": "order_alerts_channel",
+        "sound": "default"
+      }
+    },
+    "apns": {
+      "headers": { "apns-priority": "10" }
+    }
+  }
+}
+```
+
+**Android**: Ensure your app creates a notification channel with ID `order_alerts_channel` for proper sound and display.
+
+**iOS**: `apns-priority: 10` enables immediate delivery even when the app is terminated.
+
 ---
 
 ## Which ID to open in the app

@@ -32,6 +32,18 @@ class FcmPushService
                 'title' => $title,
                 'body' => $body,
             ],
+            'android' => [
+                'priority' => 'HIGH',
+                'notification' => [
+                    'channel_id' => 'order_alerts_channel',
+                    'sound' => 'default',
+                ],
+            ],
+            'apns' => [
+                'headers' => [
+                    'apns-priority' => '10',
+                ],
+            ],
         ];
 
         if ($data !== []) {
